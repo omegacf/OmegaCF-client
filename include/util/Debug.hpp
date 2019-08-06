@@ -12,7 +12,7 @@ class Debug{
         static bool getFlag();
         static void print(std::string s);
         static void printLine(std::string s);
-				static void printVersion(); 
-				static void printErrorLine(std::string s); 
+        static void printVersion(); 
+        static void printErrorLine(std::string s); 
 };
 #endif

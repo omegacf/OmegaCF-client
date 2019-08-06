@@ -4,8 +4,6 @@
 #include <string>
 #include "NetworkMessage.hpp"
 #include "NetworkClient.hpp"
-#include "../util/JSONFormatter.h"
-#include "../util/FightClubTest.hpp"
 #include <math.h>
 #include <stdlib.h>
 

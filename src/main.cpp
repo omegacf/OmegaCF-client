@@ -39,13 +39,10 @@ int main(int argc, char *argv[]) {
 				Debug::setFlag(true);				
 			}
 			else if((arg == "-q") || (arg == "--quiet")){
-				Debug::setFlag(false);
-				FightClubTest::setFlag(false);				
+				Debug::setFlag(false);			
 			}
 		}
 	}
-
-	Debug::printVersion();
 	try {
 		GameHandler *gameHandler = new GameHandler(ip, port);
 		gameHandler->run();
