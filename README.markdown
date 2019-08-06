@@ -1,19 +1,9 @@
-This is a little Connect Four project. It uses machine learning to evaluate the moves
+[![Build status](https://ci.appveyor.com/api/projects/status/4jbml8q4uu8udri1/branch/dev?svg=true)](https://ci.appveyor.com/project/Simple-codinger/omegacf-client/branch/dev)
 
-Folder structure:
+## OmegaCF-client
+This is the client for our Connect-Four project. 
+The client uses machine learning to evaluate the possible moves.
 
-    - bin: The output executables go here, both for the app and for any tests and spikes.
 
-    - build: This folder contains all object files, and is removed on a clean.
-
-    - doc: Any notes go here.
-
-    - include: All project header files. All necessary third-party header files that do not exist under /usr/local/include are also placed here.
-
-    - lib: Any libs that get compiled by the project, third party or any needed in development. Prior to deployment, third party libraries get moved to /usr/local/lib where they belong, leaving the project clean enough to compile on our Linux deployment server. (We should only use St-librarys, so maybe we can leave this folder empty)
-
-    - spike: It's for little test files, to test new technologie and so on. 
-
-    - src: The application and only the application’s source files.
-
-    - test: Our unit tests.
+## License
+The source code is licensed under the Lesser General Public License (LGPL) v3
