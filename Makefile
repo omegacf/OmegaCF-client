@@ -26,8 +26,8 @@ clean:
 	@echo " $(RM) -r $(BUILDDIR) $(BINDIR)"; $(RM) -r $(BUILDDIR) $(BINDIR)
 
 # Tests
-tester:
-	$(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+test:
+	$(CC) $(CFLAGS) test/test.cpp $(INC) $(LIB) -o bin/tester
 
 # Spikes
 ticket:

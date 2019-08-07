@@ -1,0 +1,9 @@
+image: ubuntu
+
+test_script:
+- make test
+
+build_script:
+- make
+
+test: off
