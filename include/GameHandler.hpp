@@ -3,6 +3,7 @@
 
 #include <string>
 #include "network/DataHandlingService.hpp"
+#include <stdint.h>
 
 class GameHandler{
     private:
