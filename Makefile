@@ -18,7 +18,7 @@ $(TARGET): $(OBJECTS)
 	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR) $(BUILDDIR)/game $(BUILDDIR)/network $(BUILDDIR)/player $(BUILDDIR)/util
+	@mkdir -p $(BUILDDIR) $(BUILDDIR)/game $(BUILDDIR)/network $(BUILDDIR)/player $(BUILDDIR)/util $(BUILDDIR)/factory
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
