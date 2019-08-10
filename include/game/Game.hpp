@@ -6,9 +6,11 @@
 #include "Field.hpp"
 #include "PossibleMove.hpp"
 #include <vector>
+#include <array>
 
 class Game{
     private:
+        std::array<int, 2> getNeighbourCoordinates(Field f, uint8_t direction);
 
     public:
         int SizeX;
@@ -20,7 +22,7 @@ class Game{
         Game(int sizeX, int sizeY, Grid currentMap, std::vector<Player> players, std::vector<Field> fields) 
             : SizeX(sizeX), SizeY(sizeY), CurrentMap(currentMap), Players(players), Fields(fields) {};
 
-        inline uint8_t getField(int x, int y, Grid grid){
+        inline uint8_t getStone(int x, int y, Grid grid){
             return grid.MapArray[x][y];
         }
 
@@ -32,8 +34,15 @@ class Game{
             return Fields[(y*SizeX) + x];
         }
 
-        inline Field& getField(int id){
-            return Fields[id];
+        inline Field& getNeigbour(Field f, uint8_t direction){
+            std::array<int, 2> coordinatesArray = this->getNeighbourCoordinates(f, direction);
+            return this->getField(coordinatesArray[0], coordinatesArray[1]);
+        }
+
+        inline bool hasNeighbour(Field f, uint8_t direction){
+            std::array<int, 2> coordinatesArray = this->getNeighbourCoordinates(f, direction);
+            return(coordinatesArray[0] >= 0 && coordinatesArray[0] <= this->SizeX
+                    && coordinatesArray[1] >= 0 && coordinatesArray[1] <= this->SizeY);
         }
 };
 #endif
