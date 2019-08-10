@@ -6,7 +6,7 @@ class Player{
     public:
         uint8_t Id;
 
-        Player(int id) : Id(id){};
+        Player(uint8_t id) : Id(id){};
         Player() : Id(1){};
 };
 #endif
