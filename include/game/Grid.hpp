@@ -18,7 +18,7 @@ class Grid{
         friend std::ostream& operator << (std::ostream &out, const Grid &g){
             for(std::vector<uint8_t> iv : g.MapArray){
                 for(uint8_t i : iv){
-                    out << i << " ";
+                    out << (int)i << " ";
                 }
                 out << std::endl;
             }
