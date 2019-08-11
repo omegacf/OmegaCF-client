@@ -24,9 +24,7 @@ class Game{
 
         Game() : SizeX(0), SizeY(0) {};
 
-        inline uint8_t getStone(int x, int y, Grid grid){
-            return grid.MapArray[x][y];
-        }
+        void setStone(Player player, int x, Grid& grid);
 
         std::vector<PossibleMove> getPossibleMoves(Player player, Grid grid);
 
