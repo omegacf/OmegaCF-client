@@ -22,6 +22,8 @@ class Game{
         Game(int sizeX, int sizeY, Grid currentMap, std::vector<Player> players, std::vector<Field> fields) 
             : SizeX(sizeX), SizeY(sizeY), CurrentMap(currentMap), Players(players), Fields(fields) {};
 
+        Game() : SizeX(0), SizeY(0) {};
+
         inline uint8_t getStone(int x, int y, Grid grid){
             return grid.MapArray[x][y];
         }
