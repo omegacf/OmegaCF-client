@@ -27,7 +27,7 @@ std::array<int, 2> getNeighbourCoordinates(Field f, uint8_t direction){
 void Game::setStone(Player player, int x, Grid& grid){
     int y = 0;
     for(int i = 0; i < this->SizeY; i++){
-        if(grid.MapArray[i][x] == 0){
+        if(grid.getStone(x, y) == 0){
             y++;
         }else{
             break;
@@ -37,5 +37,13 @@ void Game::setStone(Player player, int x, Grid& grid){
 }
 
 std::vector<PossibleMove> Game::getPossibleMoves(Player player, Grid grid){
-
+    std::vector<PossibleMove> moves;
+    for(int x = 0; x < this->SizeX; x++){
+        if(grid.getStone(x, 0) == 0){
+            Grid cgrid(grid);
+            this->setStone(player, x, cgrid);
+            moves.push_back(PossibleMove(x, cgrid));
+        }
+    }
+    return moves;
 }

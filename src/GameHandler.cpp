@@ -17,8 +17,10 @@ void GameHandler::run(){
     this->_game.setStone(this->_game.Players[0], 0, this->_game.CurrentMap);
     this->_game.setStone(this->_game.Players[1], 0, this->_game.CurrentMap);
 
-    if(Debug::getFlag()){
-        std::cout << this->_game.CurrentMap;
+    for(PossibleMove move : this->_game.getPossibleMoves(this->_game.Players[0], this->_game.CurrentMap)){
+        std::cout << "Possible Move: "  << move.Move << std::endl;
+        std::cout << "Map (after it):" << std::endl;
+        std::cout << move.AfterGrid << std::endl;
     }
     
     Debug::printLine("End of the game. Bye!");
