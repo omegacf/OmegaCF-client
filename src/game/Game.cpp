@@ -19,5 +19,7 @@ std::array<int, 2> getNeighbourCoordinates(Field f, uint8_t direction){
                 return {{f.X-1, f.Y}};
             case 7:
                 return {{f.X-1, f.Y-1}};
+            default:
+                return {{f.X, f.Y}};
         }
 }
