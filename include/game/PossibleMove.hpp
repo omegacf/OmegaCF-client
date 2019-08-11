@@ -6,9 +6,9 @@
 
 class PossibleMove{
     public:
-        PossibleMove(Field field, Grid grid) : 
-            PossibleField(field), AfterGrid(grid){};
-        Field PossibleField;
+        PossibleMove(int move, Grid grid) : 
+            Move(move), AfterGrid(grid){};
+        int Move;
         Grid AfterGrid;
 };
 #endif
