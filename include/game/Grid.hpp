@@ -12,7 +12,7 @@ class Grid{
         Grid(std::vector<std::vector<uint8_t>> mapArray) : MapArray(mapArray){};
 
         inline uint8_t& getStone(int x, int y){
-            return MapArray[x][y];
+            return MapArray[y][x];
         }
 
         friend std::ostream& operator << (std::ostream &out, const Grid &g){
