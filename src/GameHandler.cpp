@@ -14,7 +14,9 @@ void GameHandler::run(){
     Debug::printLine("Run AI");
     //this is for testing purposes only!!!
     this->_game = GameFactory::create(10, 10, 2);
-    
+    this->_game.setStone(this->_game.Players[0], 0, this->_game.CurrentMap);
+    this->_game.setStone(this->_game.Players[1], 0, this->_game.CurrentMap);
+
     if(Debug::getFlag()){
         std::cout << this->_game.CurrentMap;
     }
