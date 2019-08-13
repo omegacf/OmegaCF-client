@@ -4,7 +4,6 @@
 #include <string>
 #include "network/DataHandlingService.hpp"
 #include "factory/GameFactory.hpp"
-#include <stdint.h>
 
 class GameHandler{
     private:
