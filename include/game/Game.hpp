@@ -34,7 +34,7 @@ class Game{
             return Fields[(y*SizeX) + x];
         }
 
-        inline Field& getNeigbour(Field f, uint8_t direction){
+        inline Field& getNeighbour(Field f, uint8_t direction){
             std::array<int, 2> coordinatesArray = this->getNeighbourCoordinates(f, direction);
             return this->getField(coordinatesArray[0], coordinatesArray[1]);
         }
