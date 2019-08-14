@@ -1,0 +1,1 @@
+This file will be used for future documentation of certain class functionalities and how they are used within the code.
