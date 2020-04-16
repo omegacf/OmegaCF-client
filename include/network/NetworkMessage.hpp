@@ -31,7 +31,7 @@ class NetworkMessage{
 class ClientNetworkMessage : public NetworkMessage{
     public:
         ClientNetworkMessage(NetworkMessageType type, int8_t number);
-        ClientNetworkMessage(int16_t x, int16_t y, int8_t specialField);
+        ClientNetworkMessage(int16_t x, int16_t y);
 };
 
 class ServerNetworkMessage : public NetworkMessage{
@@ -39,7 +39,7 @@ class ServerNetworkMessage : public NetworkMessage{
         struct MoveStruct
         {
             int16_t x, y;
-            int8_t specialField, playerNumber;
+            int8_t playerNumber;
         };
     public:
         MoveStruct Move;

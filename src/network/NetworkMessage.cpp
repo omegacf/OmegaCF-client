@@ -47,15 +47,14 @@ ClientNetworkMessage::ClientNetworkMessage(NetworkMessageType type, int8_t numbe
     this->_message = std::string(1, m);
 }
 
-ClientNetworkMessage::ClientNetworkMessage(int16_t x, int16_t y, int8_t specialField){
+ClientNetworkMessage::ClientNetworkMessage(int16_t x, int16_t y){
     this->_type = NetworkMessageType::Answer;
-    this->_size = 5; //5 Byte => 2(x) + 2(y) + 1(sF)
+    this->_size = 4; //4 Byte => 2(x) + 2(y)
 
     char c[this->_size];
 
     NetworkMessageConverter::convertFrom16To8((int8_t*)c, x);
     NetworkMessageConverter::convertFrom16To8((int8_t*)(c+2), y);
-    *(c+4) = specialField;
 
     this->_message = std::string(c, this->_size);
 }
@@ -70,13 +69,12 @@ ServerNetworkMessage::ServerNetworkMessage(NetworkMessageType type, unsigned int
     
     this->_message = serverMessage;
 
-    if(type == NetworkMessageType::Move || type == NetworkMessageType::Answer){
+    if(type == NetworkMessageType::Move || type == NetworkMessageType::Answer || type == NetworkMessageType::Configuration){
         this->Move.x = (serverMessage.at(0) * 256) + serverMessage.at(1);
         this->Move.y = (serverMessage.at(2) * 256) + serverMessage.at(3);
-        this->Move.specialField = serverMessage.at(4);
 
         if(type == NetworkMessageType::Move){
-            this->Move.playerNumber = serverMessage.at(5);
+            this->Move.playerNumber = serverMessage.at(4);
         }
 
     }

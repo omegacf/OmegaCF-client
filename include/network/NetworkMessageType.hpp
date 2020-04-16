@@ -1,7 +1,7 @@
 #ifndef NETWORKMESSAGETYPE_H
 #define NETWORKMESSAGETYPE_H
     typedef enum NetworkMessageType{
-        PlayerNumber = 1,
+        Configuration = 1,
         Request = 4,
         Answer = 5,
         Move = 6,
