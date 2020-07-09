@@ -43,7 +43,6 @@ std::string NetworkClient::read(int size){
         return "";
 	}
     std::string s = std::string(mp, size);
-    Debug::printLine(s);
     return s;
 }
 

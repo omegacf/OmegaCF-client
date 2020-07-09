@@ -12,6 +12,9 @@ class GameHandler{
     public:
         GameHandler(std::string host, unsigned short port);
         void handleDisqualification(ServerNetworkMessage sm);
+        void handleMoveRequest(ServerNetworkMessage sm);
+        void handleMove(ServerNetworkMessage sm);
+        bool handleMessage(ServerNetworkMessage sm);
         void run();
         ~GameHandler();
 };

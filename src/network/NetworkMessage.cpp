@@ -39,24 +39,11 @@ NetworkMessage::~NetworkMessage(){
 
 }
 
-ClientNetworkMessage::ClientNetworkMessage(NetworkMessageType type, int8_t number){
-    this->_type = type;
-    this->_size = 1; //because it's always just 1 Byte
-
-    char m = number;
-    this->_message = std::string(1, m);
-}
-
-ClientNetworkMessage::ClientNetworkMessage(int16_t x, int16_t y){
+ClientNetworkMessage::ClientNetworkMessage(int8_t x){
     this->_type = NetworkMessageType::Answer;
-    this->_size = 4; //4 Byte => 2(x) + 2(y)
+    this->_size = 1;
 
-    char c[this->_size];
-
-    NetworkMessageConverter::convertFrom16To8((int8_t*)c, x);
-    NetworkMessageConverter::convertFrom16To8((int8_t*)(c+2), y);
-
-    this->_message = std::string(c, this->_size);
+    this->_message = std::string((char)x, this->_size);
 }
 
 ServerNetworkMessage::ServerNetworkMessage(std::string serverMessage){
@@ -69,13 +56,15 @@ ServerNetworkMessage::ServerNetworkMessage(NetworkMessageType type, unsigned int
     
     this->_message = serverMessage;
 
-    if(type == NetworkMessageType::Move || type == NetworkMessageType::Answer || type == NetworkMessageType::Configuration){
-        this->Move.x = (serverMessage.at(0) * 256) + serverMessage.at(1);
-        this->Move.y = (serverMessage.at(2) * 256) + serverMessage.at(3);
+    if(type == NetworkMessageType::Configuration) {
+        this->GameConfig.width = serverMessage.at(0);
+        this->GameConfig.height = serverMessage.at(1);
+        this->GameConfig.players = serverMessage.at(2);
+        this->GameConfig.playerNumber = serverMessage.at(3);
+    }
 
-        if(type == NetworkMessageType::Move){
-            this->Move.playerNumber = serverMessage.at(4);
-        }
-
+    if(type == NetworkMessageType::Move){
+        this->Move.x = serverMessage.at(0);
+        this->Move.playerNumber = serverMessage.at(1);
     }
 }

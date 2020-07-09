@@ -2,11 +2,11 @@
 #define NETWORKMESSAGETYPE_H
     typedef enum NetworkMessageType{
         Configuration = 1,
-        Request = 4,
-        Answer = 5,
-        Move = 6,
-        Disqualification = 7,
-        EndGame = 8
+        Request = 2,
+        Answer = 3,
+        Move = 4,
+        Disqualification = 5,
+        EndGame = 6
     }
     NetworkMessageType;
 #endif

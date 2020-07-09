@@ -7,6 +7,7 @@ int DataHandlingService::start(std::string host, unsigned short port){
 
 void DataHandlingService::sendMessage(ClientNetworkMessage message){
     std::string networkMessage = message.getNetworkMessage();
+    Debug::printLine("Hey iam sending");
     this->_networkClient->send(networkMessage);
 }
 
@@ -15,7 +16,7 @@ ServerNetworkMessage DataHandlingService::receiveMessage(){
     std::string typeString = this->_networkClient->read(ServerNetworkMessage::typeSize);
 
     std::stringstream typeSStream;
-    typeSStream << "Type: " << (int8_t)typeString.at(0);
+    typeSStream << "Type: " << (uint8_t)typeString.at(0);
 
     Debug::printLine(typeSStream.str());
 
@@ -40,7 +41,7 @@ ServerNetworkMessage DataHandlingService::receiveMessage(){
     //message
     std::string messageString = this->_networkClient->read(size);
 
-    ServerNetworkMessage sm((NetworkMessageType)(int8_t)typeString.at(0), size, messageString);
+    ServerNetworkMessage sm((NetworkMessageType)(uint8_t)typeString.at(0), size, messageString);
     return sm;
 }
 

@@ -18,7 +18,7 @@ class NetworkMessage{
         std::string _message;
     public:
         const static short typeSize = 1;
-        const static short sizeSize = 4;
+        const static short sizeSize = 1;
 
         unsigned int getBufferSize();
         std::string getNetworkMessage();
@@ -30,19 +30,25 @@ class NetworkMessage{
 
 class ClientNetworkMessage : public NetworkMessage{
     public:
-        ClientNetworkMessage(NetworkMessageType type, int8_t number);
-        ClientNetworkMessage(int16_t x, int16_t y);
+        ClientNetworkMessage(int8_t x);
 };
 
 class ServerNetworkMessage : public NetworkMessage{
     private:
+        struct GameConfigStruct
+        {
+            int8_t width, height;
+            int8_t players;
+            int8_t playerNumber;
+        };
         struct MoveStruct
         {
-            int16_t x, y;
+            int8_t x;
             int8_t playerNumber;
         };
     public:
         MoveStruct Move;
+        GameConfigStruct GameConfig;
         ServerNetworkMessage(std::string serverMessage);
         ServerNetworkMessage(NetworkMessageType type, unsigned int size, std::string serverMessage);
 };
