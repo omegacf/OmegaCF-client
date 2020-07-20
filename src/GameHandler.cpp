@@ -56,6 +56,7 @@ void GameHandler::run(){
 
 bool GameHandler::handleMessage(ServerNetworkMessage message){
     bool endOfGame = false;
+    Debug::printLine("hey there");
     switch (message.getMessageType())
     {
         case NetworkMessageType::Request:
@@ -83,6 +84,8 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
     std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->_game.Players[0], this->_game.CurrentMap);
+    Debug::printLine("Move to send to the server:");
+    Debug::printLine(std::to_string(possibleMoves.at(0).Move));
     DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)possibleMoves.at(0).Move));
 }
 

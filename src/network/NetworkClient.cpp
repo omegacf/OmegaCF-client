@@ -37,7 +37,7 @@ int NetworkClient::connect(){
 std::string NetworkClient::read(int size){
     //Receive a reply from the server
     char mp[size];
-	if(::recv(_sock, mp, size , 0) < 0)
+	if(size > 0 && ::recv(_sock, mp, size , 0) < 0)
 	{
         Debug::printLine("recv failed");
         return "";

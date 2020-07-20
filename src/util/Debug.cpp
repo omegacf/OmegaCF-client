@@ -4,13 +4,13 @@ bool Debug::_debug = false;
 
 void Debug::print(std::string s){
     if(_debug){
-        std::cout << s;   
+        std::cout << s << std::flush;   
     }
 }
 
 void Debug::printLine(std::string s){
     if(_debug){
-        std::cout << s << std::endl;   
+        std::cout << s << std::endl << std::flush;   
     }
 }
 

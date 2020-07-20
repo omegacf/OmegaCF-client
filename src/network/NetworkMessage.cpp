@@ -12,10 +12,8 @@ std::string NetworkMessage::getNetworkMessage(){
 
     //size
     int s = this->_size;
-    cp[1] = (s >> 24) & 0xFF;
-    cp[2] = (s >> 16) & 0xFF;
-    cp[3] = (s >> 8) & 0xFF;
-    cp[4] = s & 0xFF;
+    // TODO: check if this is really necessary
+    cp[1] = s & 0xFF;
 
     std::stringstream ss;
     ss << std::string(cp, NetworkMessage::typeSize + NetworkMessage::sizeSize) << this->_message;
