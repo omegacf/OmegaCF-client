@@ -56,7 +56,6 @@ void GameHandler::run(){
 
 bool GameHandler::handleMessage(ServerNetworkMessage message){
     bool endOfGame = false;
-    Debug::printLine("hey there");
     switch (message.getMessageType())
     {
         case NetworkMessageType::Request:
@@ -84,9 +83,11 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
     std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->_game.Players[0], this->_game.CurrentMap);
+    // get random move
+    PossibleMove move = possibleMoves.at(rand() % possibleMoves.size()-1); 
     Debug::printLine("Move to send to the server:");
-    Debug::printLine(std::to_string(possibleMoves.at(0).Move));
-    DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)possibleMoves.at(0).Move));
+    Debug::printLine(std::to_string(move.Move));
+    DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)move.Move));
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
@@ -98,6 +99,7 @@ void GameHandler::handleMove(ServerNetworkMessage message) {
         i++;
     }
     this->_game.setStone(this->_game.Players[i], message.Move.x, this->_game.CurrentMap);
+    std::cout << this->_game.CurrentMap << std::endl;
 }
 
 void GameHandler::handleDisqualification(ServerNetworkMessage message) {

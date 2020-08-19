@@ -11,13 +11,10 @@ std::string NetworkMessage::getNetworkMessage(){
     *cp = this->_type;
 
     //size
-    int s = this->_size;
-    // TODO: check if this is really necessary
-    cp[1] = s & 0xFF;
+    cp[1] = this->_size;
 
     std::stringstream ss;
     ss << std::string(cp, NetworkMessage::typeSize + NetworkMessage::sizeSize) << this->_message;
-
     return ss.str();
 }
 
@@ -40,8 +37,10 @@ NetworkMessage::~NetworkMessage(){
 ClientNetworkMessage::ClientNetworkMessage(int8_t x){
     this->_type = NetworkMessageType::Answer;
     this->_size = 1;
+    char cp[this->_size];
+    *cp = x;
 
-    this->_message = std::string((char)x, this->_size);
+    this->_message = std::string(cp, this->_size);
 }
 
 ServerNetworkMessage::ServerNetworkMessage(std::string serverMessage){

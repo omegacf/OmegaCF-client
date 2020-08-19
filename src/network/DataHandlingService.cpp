@@ -7,7 +7,6 @@ int DataHandlingService::start(std::string host, unsigned short port){
 
 void DataHandlingService::sendMessage(ClientNetworkMessage message){
     std::string networkMessage = message.getNetworkMessage();
-    Debug::printLine("Hey iam sending");
     this->_networkClient->send(networkMessage);
 }
 

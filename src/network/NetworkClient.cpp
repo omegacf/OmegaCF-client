@@ -48,6 +48,8 @@ std::string NetworkClient::read(int size){
 
 void NetworkClient::send(std::string message){
     if(_sock){
+        Debug::printLine("Message Length");
+        std::cout << message.length() << std::endl;
         ::send(_sock, message.c_str(), message.length(), 0);
         std::stringstream ss;
         ss << "NetworkClient: Send message to server" << std::endl;
