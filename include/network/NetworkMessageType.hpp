@@ -5,8 +5,7 @@
         Request = 2,
         Answer = 3,
         Move = 4,
-        Disqualification = 5,
-        EndGame = 6
+        EndGame = 5
     }
     NetworkMessageType;
 #endif

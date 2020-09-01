@@ -66,10 +66,6 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
             Debug::printLine("Move");
             handleMove(message);
             break;
-        case NetworkMessageType::Disqualification:
-            Debug::printLine("Disqualification");
-            handleDisqualification(message);
-            break;
         case NetworkMessageType::EndGame:
             Debug::printLine("EndGame");
             endOfGame = true;
@@ -100,14 +96,6 @@ void GameHandler::handleMove(ServerNetworkMessage message) {
     }
     this->_game.setStone(this->_game.Players[i], message.Move.x, this->_game.CurrentMap);
     std::cout << this->_game.CurrentMap << std::endl;
-}
-
-void GameHandler::handleDisqualification(ServerNetworkMessage message) {
-    uint8_t disNumber = message.getMessage().at(0);
-    if (this->_playerNumber == disNumber) {
-        Debug::printLine("DISQUALIFIED!");
-        exit(0);
-    }
 }
 
 GameHandler::~GameHandler(){
