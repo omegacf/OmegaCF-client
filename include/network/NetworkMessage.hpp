@@ -37,8 +37,6 @@ class ServerNetworkMessage : public NetworkMessage{
     private:
         struct GameConfigStruct
         {
-            int8_t width, height;
-            int8_t players;
             int8_t playerNumber;
         };
         struct MoveStruct
@@ -46,9 +44,14 @@ class ServerNetworkMessage : public NetworkMessage{
             int8_t x;
             int8_t playerNumber;
         };
+        struct EndGameStruct
+        {
+            int8_t playerNumber;
+        };
     public:
         MoveStruct Move;
         GameConfigStruct GameConfig;
+        EndGameStruct EndGame;
         ServerNetworkMessage(std::string serverMessage);
         ServerNetworkMessage(NetworkMessageType type, unsigned int size, std::string serverMessage);
 };

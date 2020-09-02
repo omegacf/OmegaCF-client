@@ -16,8 +16,8 @@ void GameHandler::run(){
     // receive playerNumber
     ServerNetworkMessage configurationMessage = DataHandlingService::getInstance().receiveMessage();
     while (configurationMessage.getMessageType() != NetworkMessageType::Configuration) {
-        if(configurationMessage.getMessageType() == NetworkMessageType::Disqualification) {
-            handleDisqualification(configurationMessage);
+        if(configurationMessage.getMessageType() == NetworkMessageType::EndGame) {
+            handeEndGame(configurationMessage);
         } else {
             Debug::printLine("Unexpected message type!");
             exit(0);
@@ -25,10 +25,14 @@ void GameHandler::run(){
         configurationMessage = DataHandlingService::getInstance().receiveMessage();
     }
     // init player
-    this->_playerNumber = configurationMessage.Move.playerNumber;
+    this->_playerNumber = configurationMessage.GameConfig.playerNumber;
+    std::stringstream ss;
+    ss << "Got playerNumber from server: " << (int) configurationMessage.GameConfig.playerNumber;
+    Debug::printLine(ss.str());
 
     // init game
-    this->_game = GameFactory::create(configurationMessage.GameConfig.width, configurationMessage.GameConfig.height, configurationMessage.GameConfig.players);
+    // widht height amountOfPlayers
+    this->_game = GameFactory::create(7, 6, 2);
     std::cout << this->_game.CurrentMap << std::endl;
 
     bool endOfGame = false;
@@ -68,7 +72,9 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
             break;
         case NetworkMessageType::EndGame:
             Debug::printLine("EndGame");
+            handeEndGame(message);
             endOfGame = true;
+            break;
         default:
             Debug::printLine("receiving weird messages");
             endOfGame = true;
@@ -78,7 +84,7 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 }
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
-    std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->_game.Players[0], this->_game.CurrentMap);
+    std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->getPlayer(this->_playerNumber), this->_game.CurrentMap);
     // get random move
     PossibleMove move = possibleMoves.at(rand() % possibleMoves.size()-1); 
     Debug::printLine("Move to send to the server:");
@@ -87,15 +93,35 @@ void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
-    int i = 0;
-    for (Player player : this->_game.Players) {
-        if(player.Id == message.Move.playerNumber) {
-            break;
+    this->_game.setStone(this->getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
+
+    std::stringstream ss;
+    ss << this->_game.CurrentMap;
+    Debug::printLine(ss.str());
+}
+
+void GameHandler::handeEndGame(ServerNetworkMessage message) {
+    if(message.EndGame.playerNumber == 0) {
+        Debug::printLine("Draw!");
+    } else {
+        Debug::printLine("We have a winner: ");
+        Debug::printLine(std::to_string(message.EndGame.playerNumber));
+        if(message.EndGame.playerNumber == this->_playerNumber) {
+            // We have won!
+            Debug::printLine("We are the champions");
         }
-        i++;
     }
-    this->_game.setStone(this->_game.Players[i], message.Move.x, this->_game.CurrentMap);
-    std::cout << this->_game.CurrentMap << std::endl;
+}
+
+Player GameHandler::getPlayer(int8_t playerNumber){
+    for (Player player : this->_game.Players) {
+        if(player.Id == playerNumber) {
+            return player;
+        }
+    }
+    Debug::printLine("Player not found!");
+    Debug::printLine("Continue with player 1");
+    return Player(1);
 }
 
 GameHandler::~GameHandler(){

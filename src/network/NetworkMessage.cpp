@@ -53,15 +53,19 @@ ServerNetworkMessage::ServerNetworkMessage(NetworkMessageType type, unsigned int
     
     this->_message = serverMessage;
 
-    if(type == NetworkMessageType::Configuration) {
-        this->GameConfig.width = serverMessage.at(0);
-        this->GameConfig.height = serverMessage.at(1);
-        this->GameConfig.players = serverMessage.at(2);
-        this->GameConfig.playerNumber = serverMessage.at(3);
-    }
-
-    if(type == NetworkMessageType::Move){
-        this->Move.x = serverMessage.at(0);
-        this->Move.playerNumber = serverMessage.at(1);
+    switch (type)
+    {
+        case NetworkMessageType::Configuration:
+            this->GameConfig.playerNumber = serverMessage.at(0);
+            break;
+        case NetworkMessageType::Move:
+            this->Move.x = serverMessage.at(0);
+            this->Move.playerNumber = serverMessage.at(1);
+            break;
+        case NetworkMessageType::EndGame:
+            this->EndGame.playerNumber = serverMessage.at(0);
+            break;
+        default:
+            break;
     }
 }
