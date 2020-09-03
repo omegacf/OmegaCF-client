@@ -5,7 +5,7 @@ Good:
 - Win!: Max int
 
 Bad:
-- Opp Line of Two: -2
+- Opp Line of Two: -3
 - Opp Line of Three: -100
 
 

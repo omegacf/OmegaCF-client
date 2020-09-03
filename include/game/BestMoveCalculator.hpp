@@ -11,9 +11,9 @@ class BestMoveCalculator {
         Game _game;
     public:
         BestMoveCalculator(Game game) : _game(game) {};
-        int evaluateBoard(Grid grid, Player player);
+        int evaluateBoard(Grid grid, Player player, Player opponent);
         // checkline(3)
         // 1101, 1011, ...
-        bool checkLine(int numberOfStones, Grid grid, Player player);
+        bool checkLine(int numberOfStones, bool gravity, Grid grid, Player player);
 };
 #endif
