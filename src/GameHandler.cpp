@@ -121,7 +121,7 @@ Player GameHandler::getPlayer(int8_t playerNumber){
     }
     Debug::printLine("Player not found!");
     Debug::printLine("Continue with player 1");
-    return Player(1);
+    return Player();
 }
 
 GameHandler::~GameHandler(){
