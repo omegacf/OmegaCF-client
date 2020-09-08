@@ -1,6 +1,6 @@
 #include "../../include/game/Game.hpp"
 
-std::array<int, 2> getNeighbourCoordinates(Field f, uint8_t direction){
+std::array<int, 2> Game::getNeighbourCoordinates(Field f, uint8_t direction){
     switch (direction)
     {
         case 0:

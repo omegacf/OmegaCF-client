@@ -9,7 +9,7 @@ HEURISTICTARGET := bin/heuristicTest
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g -std=c++11 -O3# -Wall
+CFLAGS := -g -std=c++17 -O3 -Wall
 LIB := -L lib
 INC := -I include
 

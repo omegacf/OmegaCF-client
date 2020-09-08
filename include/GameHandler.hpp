@@ -4,11 +4,15 @@
 #include <string>
 #include "network/DataHandlingService.hpp"
 #include "factory/GameFactory.hpp"
+#include "game/BestMoveCalculator.hpp"
+#include <limits>
 
 class GameHandler{
     private:
         short _playerNumber;
         Game _game;
+        BestMoveCalculator _bmc;
+
         Player getPlayer(int8_t playerNumber);
     public:
         GameHandler(std::string host, unsigned short port);

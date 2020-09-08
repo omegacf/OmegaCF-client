@@ -2,24 +2,31 @@
 
 int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent) {
     int score = 0;
-    // check if this player is about to win
+    // check if this player has won
+
+    // check if opponent has won
+    if (this->checkLine(4, false, grid, opponent)) {
+        score = std::numeric_limits<int>::min();
+        return score;
+    }
+
     if (this->checkLine(4, false, grid, player)) {
-        score = std::numeric_limits<int>::max();;
+        score = std::numeric_limits<int>::max();
         return score;
     }
 
     // check if opponent is about to win
-    if (this->checkLine(3, true, grid, opponent)) {
+    if (this->checkLine(3, false, grid, opponent)) {
         score -= 100;
     }
 
     // make sure to prefer the middle column in the first three moves
     bool brk = false;
     for(int y = 0; y < this->_game.SizeY && !brk; y++) {
-        for(int x = 0; y < this->_game.SizeX && !brk; x++) {
+        for(int x = 0; x < this->_game.SizeX && !brk; x++) {
             int stone = grid.getStone(x, y);
             if (stone != 0 && stone == player.Id) {
-                if ((x >= 2 || x <=4)&& y > 2) {
+                if ((x >= 2 || x <=4) && y > 2) {
                     /*
                     0 0 0 0 0 0 0
                     0 0 0 0 0 0 0
@@ -40,17 +47,17 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
     }
 
     // check opponent line with two (with gravity)
-    if (this->checkLine(2, true, grid, opponent)) {
+    if (this->checkLine(2, false, grid, opponent)) {
         score -= 3;
     }
 
     // check if this player has a line of two (with gravity)
-    if (this->checkLine(2, true, grid, player)) {
+    if (this->checkLine(2, false, grid, player)) {
         score += 2;
     }
 
     // check if this player has  line of three (with gravity)
-    if (this->checkLine(3, true, grid, player)) {
+    if (this->checkLine(3, false, grid, player)) {
         score += 5;
     }
 
@@ -59,41 +66,12 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
 
 bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, Player player) {
     int lineSize = 4;
-    // horizontalCheck 
+    // vedrticalCheck 
     for (int y = 0; y < this->_game.SizeY-3 ; y++ ){
-        for (int x = 0; y < this->_game.SizeX; y++){
+        for (int x = 0; x < this->_game.SizeX; x++){
             bool brk = false;
             int emptyCounter = 0;
-            for(int s = 0; s < numberOfStones && brk; s++) {
-               if(grid.getStone(x + s, y) != player.Id) {
-                   // check if field is free
-                   if(grid.getStone(x + s, y) == 0 && emptyCounter < (lineSize-numberOfStones)) {
-                       emptyCounter++;
-                       if(gravity) {
-                           Field f = this->_game.getField(x + s, y);
-                           if(this->_game.hasNeighbour(f, 4)) {
-                               Field neighbour = this->_game.getNeighbour(f, 4);
-                               if(grid.getStone(neighbour.X, neighbour.Y) == 0) {
-                                   brk = true;
-                               }
-                           }
-                       }
-                   } else {
-                       brk = true;
-                   }
-               }
-
-            }
-            return !brk;          
-        }
-    }
-
-    // verticalCheck
-    for (int x = 0; x < this->_game.SizeX-3; x++ ){
-        for (int y = 0; y < this->_game.SizeY; y++){
-            bool brk = false;
-            int emptyCounter = 0;
-            for(int s = 0; s < numberOfStones && brk; s++) {
+            for(int s = 0; s < lineSize && !brk; s++) {
                if(grid.getStone(x, y + s) != player.Id) {
                    // check if field is free
                    if(grid.getStone(x, y + s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
@@ -113,7 +91,40 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
                }
 
             }
-            return !brk;
+            if(brk == false) {
+                return true;
+            }          
+        }
+    }
+
+    // horizontalCheck
+    for (int x = 0; x < this->_game.SizeX-3; x++ ){
+        for (int y = 0; y < this->_game.SizeY; y++){
+            bool brk = false;
+            int emptyCounter = 0;
+            for(int s = 0; s < lineSize && !brk; s++) {
+               if(grid.getStone(x + s, y) != player.Id) {
+                   // check if field is free
+                   if(grid.getStone(x + s, y) == 0 && emptyCounter < (lineSize-numberOfStones)) {
+                       emptyCounter++;
+                       if(gravity) {
+                           Field f = this->_game.getField(x + s, y);
+                           if(this->_game.hasNeighbour(f, 4)) {
+                               Field neighbour = this->_game.getNeighbour(f, 4);
+                               if(grid.getStone(neighbour.X, neighbour.Y) == 0) {
+                                   brk = true;
+                               }
+                           }
+                       }
+                   } else {
+                       brk = true;
+                   }
+               }
+
+            }
+            if(!brk) {
+                return true;
+            }     
         }
     }
     // ascendingDiagonalCheck 
@@ -121,7 +132,7 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
         for (int y=0; y < this->_game.SizeY-3; y++){
             bool brk = false;
             int emptyCounter = 0;
-            for(int s = 0; s < numberOfStones && brk; s++) {
+            for(int s = 0; s < lineSize && !brk; s++) {
                if(grid.getStone(x - s, y + s) != player.Id) {
                    // check if field is free
                    if(grid.getStone(x - s, y + s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
@@ -141,7 +152,9 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
                }
 
             }
-            return !brk;
+            if(!brk) {
+                return true;
+            }     
         }
     }
     // descendingDiagonalCheck
@@ -149,7 +162,7 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
         for (int y=3; y < this->_game.SizeY; y++){
             bool brk = false;
             int emptyCounter = 0;
-            for(int s = 0; s < numberOfStones && brk; s++) {
+            for(int s = 0; s < lineSize && !brk; s++) {
                if(grid.getStone(x - s, y - s) != player.Id) {
                    // check if field is free
                    if(grid.getStone(x - s, y - s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
@@ -169,60 +182,65 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
                }
 
             }
-            return !brk;
+            if(!brk) {
+                return true;
+            }     
         }
     }
     return false;
 }
 
+PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, bool isMax) {
+    bool draw = this->_game.getPossibleMoves(this->_player, grid).size() == 0;
 
-/*
-bool BestMoveCalculator::checkLine(int numberOfStones, Grid grid, Player player) {
-    // horizontalCheck 
-    for (int j = 0; j < this->_game.SizeY-3 ; j++ ){
-        for (int i = 0; i < this->_game.SizeX; i++){
-            if (grid.getStone(i, j) == player.Id 
-            && grid.getStone(i+1, j) == player.Id 
-            && grid.getStone(i+2, j) == player.Id 
-            && grid.getStone(i+3, j) == player.Id) {
-                return true;
-            }           
-        }
+    if (draw) {
+        PossibleMove pm;
+        pm.Score = 0;
+        return pm;
     }
 
-    // verticalCheck
-    for (int i = 0; i < this->_game.SizeX-3 ; i++ ){
-        for (int j = 0; j < this->_game.SizeY; j++){
-            if (grid.getStone(i, j) == player.Id 
-            && grid.getStone(i, j+1) == player.Id 
-            && grid.getStone(i, j+2) == player.Id 
-            && grid.getStone(i, j+3) == player.Id){
-                return true;
-            }           
-        }
+    if (depth == 0 
+        || this->checkLine(4, false, grid, this->_player)
+        || this->checkLine(4, false, grid, this->getOpponent(this->_player))) {
+            PossibleMove pm;
+            pm.Score = this->evaluateBoard(grid, this->_player, this->getOpponent(this->_player));
+            return pm;
     }
-    // ascendingDiagonalCheck 
-    for (int i=3; i < this->_game.SizeX; i++){
-        for (int j=0; j < this->_game.SizeY-3; j++){
-            if (grid.getStone(i, j) == player.Id 
-            && grid.getStone(i-1, j+1) == player.Id 
-            && grid.getStone(i-2, j+3) == player.Id 
-            && grid.getStone(i-3, j+3) == player.Id) {
-                return true;
+
+    if (isMax) {
+        std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->_player, grid);
+        PossibleMove maxMove = possibleMoves.at(rand() % possibleMoves.size()); 
+        maxMove.Score = std::numeric_limits<int>::min();
+        for (PossibleMove move : possibleMoves) {
+            int score = minimax(move.AfterGrid, depth - 1, false).Score;
+            if(score >= maxMove.Score) {
+                maxMove = move;
+                maxMove.Score = score;
             }
         }
-    }
-    // descendingDiagonalCheck
-    for (int i=3; i < this->_game.SizeX; i++){
-        for (int j=3; j < this->_game.SizeY; j++){
-            if (grid.getStone(i, j) == player.Id 
-            && grid.getStone(i-1, j-1) == player.Id 
-            && grid.getStone(i-2, j-2) == player.Id 
-            && grid.getStone(i-3, j-3) == player.Id) {
-                return true;
+        return maxMove;
+    } else {
+        std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->getOpponent(this->_player), grid);
+        PossibleMove minMove = possibleMoves.at(rand() % possibleMoves.size()); 
+        minMove.Score = std::numeric_limits<int>::max();
+        for (PossibleMove move : possibleMoves) {
+            int score = minimax(move.AfterGrid, depth - 1, true).Score;
+            if(score <= minMove.Score) {
+                minMove = move;
+                minMove.Score = score;
             }
         }
+        return minMove;
     }
-    return false;
 }
-*/
+
+Player& BestMoveCalculator::getOpponent(Player& p) {
+    for(Player& player : this->_game.Players) {
+        if (player.Id != p.Id) {
+            return player;
+        }
+    }
+
+    // fallback
+    return this->_game.Players[0];
+}
