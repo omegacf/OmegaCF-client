@@ -6,18 +6,18 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
 
     // check if opponent has won
     if (this->checkLine(4, false, grid, opponent)) {
-        score = std::numeric_limits<int>::min();
+        score = this->_min;
         return score;
     }
 
     if (this->checkLine(4, false, grid, player)) {
-        score = std::numeric_limits<int>::max();
+        score = this->_max;
         return score;
     }
 
     // check if opponent is about to win
     if (this->checkLine(3, false, grid, opponent)) {
-        score -= 100;
+        score -= 10;
     }
 
     // make sure to prefer the middle column in the first three moves
@@ -190,7 +190,7 @@ bool BestMoveCalculator::checkLine(int numberOfStones, bool gravity, Grid grid, 
     return false;
 }
 
-PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, bool isMax) {
+PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, int alpha, int beta, bool isMax) {
     bool draw = this->_game.getPossibleMoves(this->_player, grid).size() == 0;
 
     if (draw) {
@@ -210,24 +210,34 @@ PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, bool isMax) {
     if (isMax) {
         std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->_player, grid);
         PossibleMove maxMove = possibleMoves.at(rand() % possibleMoves.size()); 
-        maxMove.Score = std::numeric_limits<int>::min();
+        maxMove.Score = this->_min;
         for (PossibleMove move : possibleMoves) {
-            int score = minimax(move.AfterGrid, depth - 1, false).Score;
-            if(score >= maxMove.Score) {
+            int score = minimax(move.AfterGrid, depth - 1, alpha, beta, false).Score;
+            if(score > maxMove.Score) {
                 maxMove = move;
                 maxMove.Score = score;
+            }
+            // pruning
+            alpha = std::max(alpha, maxMove.Score);
+            if (alpha >= beta) {
+                break;
             }
         }
         return maxMove;
     } else {
         std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(this->getOpponent(this->_player), grid);
         PossibleMove minMove = possibleMoves.at(rand() % possibleMoves.size()); 
-        minMove.Score = std::numeric_limits<int>::max();
+        minMove.Score = this->_max;
         for (PossibleMove move : possibleMoves) {
-            int score = minimax(move.AfterGrid, depth - 1, true).Score;
-            if(score <= minMove.Score) {
+            int score = minimax(move.AfterGrid, depth - 1, alpha, beta, true).Score;
+            if(score < minMove.Score) {
                 minMove = move;
                 minMove.Score = score;
+            }
+            // pruning
+            beta = std::min(beta, minMove.Score);
+            if (alpha >= beta) {
+                break;
             }
         }
         return minMove;

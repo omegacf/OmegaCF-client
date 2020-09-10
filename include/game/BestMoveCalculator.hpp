@@ -13,6 +13,8 @@ class BestMoveCalculator {
         Game _game;
         Player _player;
         Player& getOpponent(Player& player);
+        int _max = 100000;
+        int _min = -100000;
     public:
         BestMoveCalculator(Game game, Player player) : _game(game), _player(player) {};
         BestMoveCalculator() {};
@@ -21,6 +23,6 @@ class BestMoveCalculator {
         // 1101, 1011, ...
         bool checkLine(int numberOfStones, bool gravity, Grid grid, Player player);
 
-        PossibleMove minimax(Grid grid, int depth, bool isMax = true);
+        PossibleMove minimax(Grid grid, int depth, int alpha = -100000, int beta = 100000, bool isMax = true);
 };
 #endif

@@ -10,7 +10,7 @@ class PossibleMove{
             Move(move), AfterGrid(grid){};
         PossibleMove() {};
         int Score;
-        int Move;
+        int Move = 0;
         Grid AfterGrid;
 };
 #endif
