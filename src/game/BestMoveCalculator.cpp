@@ -2,43 +2,23 @@
 
 int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent) {
     int score = 0;
-    // check if this player has won
-
-    // check if opponent has won
-    if (this->checkLine(4, grid, opponent)) {
-        score = this->_min;
-        return score;
-    }
-
+    
     if (this->checkLine(4, grid, player)) {
-        score = this->_max;
-        return score;
-    }
-
-    // check if opponent is about to win
-    if (this->checkLine(3, grid, opponent)) {
-        score -= 10;
-    }
-
-    // check opponent line with two (with gravity)
-    if (this->checkLine(2, grid, opponent)) {
-        score -= 3;
-    }
-
-    // check if this player has a line of two (with gravity)
-    if (this->checkLine(2, grid, player)) {
+        score += 100;
+    } else if (this->checkLine(3, grid, player)) {
+        score += 5;
+    } else if (this->checkLine(2, grid, player)) {
         score += 2;
     }
 
-    // check if this player has  line of three (with gravity)
-    if (this->checkLine(3, grid, player)) {
-        score += 5;
+    if(this->checkLine(3, grid, opponent)) {
+        score -=4;
     }
 
     return score;
 }
 
-bool BestMoveCalculator::checkLine(int numberOfStones, Grid grid, Player player) {
+bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player) {
     int lineSize = 4;
     // vedrticalCheck 
     for (int y = 0; y < this->_game.SizeY-3 ; y++ ){
@@ -128,7 +108,7 @@ bool BestMoveCalculator::checkLine(int numberOfStones, Grid grid, Player player)
     return false;
 }
 
-PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, int alpha, int beta, bool isMax) {
+PossibleMove BestMoveCalculator::minimax(Grid& grid, int depth, int alpha, int beta, bool isMax) {
     bool draw = this->_game.getPossibleMoves(this->_player, grid).size() == 0;
 
     if (draw) {
@@ -137,12 +117,22 @@ PossibleMove BestMoveCalculator::minimax(Grid grid, int depth, int alpha, int be
         return pm;
     }
 
-    if (depth == 0 
-        || this->checkLine(4, grid, this->_player)
-        || this->checkLine(4, grid, this->getOpponent(this->_player))) {
+    if (depth == 0) {
             PossibleMove pm;
             pm.Score = this->evaluateBoard(grid, this->_player, this->getOpponent(this->_player));
             return pm;
+    }
+
+    if (this->checkLine(4, grid, this->_player)) {
+        PossibleMove pm;
+        pm.Score = this->_max;
+        return pm;
+    }
+
+    if (this->checkLine(4, grid, this->getOpponent(this->_player))) {
+        PossibleMove pm;
+        pm.Score = this->_min;
+        return pm;
     }
 
     if (isMax) {
