@@ -85,7 +85,7 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 }
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
-    PossibleMove move = this->_bmc.minimax(this->_game.CurrentMap, 8, -100000, 100000, true);
+    PossibleMove move = this->_bmc.minimax(this->_game.CurrentMap, 6);
     Debug::printLine("Move to send to the server:");
     Debug::printLine(std::to_string(move.Move));
     DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)move.Move));

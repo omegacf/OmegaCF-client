@@ -19,9 +19,7 @@ class BestMoveCalculator {
         BestMoveCalculator(Game game, Player player) : _game(game), _player(player) {};
         BestMoveCalculator() {};
         int evaluateBoard(Grid grid, Player player, Player opponent);
-        // checkline(3)
-        // 1101, 1011, ...
-        bool checkLine(int numberOfStones, bool gravity, Grid grid, Player player);
+        bool checkLine(int numberOfStones, Grid grid, Player player);
 
         PossibleMove minimax(Grid grid, int depth, int alpha = -100000, int beta = 100000, bool isMax = true);
 };
