@@ -12,8 +12,6 @@ class GameHandler{
         short _playerNumber;
         Game _game;
         BestMoveCalculator _bmc;
-
-        Player getPlayer(int8_t playerNumber);
     public:
         GameHandler(std::string host, unsigned short port);
         void handleDisqualification(ServerNetworkMessage sm);

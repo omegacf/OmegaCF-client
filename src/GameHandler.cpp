@@ -34,7 +34,7 @@ void GameHandler::run(){
     // widht height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
-    this->_bmc = BestMoveCalculator(this->_game, this->getPlayer(this->_playerNumber));
+    this->_bmc = BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber));
 
     bool endOfGame = false;
     while(!endOfGame) {
@@ -80,7 +80,7 @@ void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
-    this->_game.setStone(this->getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
+    this->_game.setStone(this->_game.getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
 
     std::stringstream ss;
     ss << this->_game.CurrentMap;
@@ -98,17 +98,6 @@ void GameHandler::handeEndGame(ServerNetworkMessage message) {
             Debug::printLine("We are the champions");
         }
     }
-}
-
-Player GameHandler::getPlayer(int8_t playerNumber){
-    for (Player player : this->_game.Players) {
-        if(player.Id == playerNumber) {
-            return player;
-        }
-    }
-    Debug::printLine("Player not found!");
-    Debug::printLine("Continue with player 1");
-    return Player();
 }
 
 GameHandler::~GameHandler(){

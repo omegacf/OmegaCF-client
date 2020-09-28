@@ -11,14 +11,5 @@ Game GameFactory::create(int sizeX, int sizeY, int playerNumber){
         players.push_back(p);
     }
 
-    std::vector<Field> fields;
-    //init Fields
-    for(int y = 0; y < sizeY; y++){
-        for(int x = 0; x < sizeX; x++){
-            Field field(x, y);
-            fields.push_back(field);
-        }
-    }
-
-    return Game(sizeX, sizeY, grid, players, fields);
+    return Game(sizeX, sizeY, grid, players);
 }
