@@ -30,7 +30,7 @@ class NetworkMessage{
 
 class ClientNetworkMessage : public NetworkMessage{
     public:
-        ClientNetworkMessage(int8_t x);
+        ClientNetworkMessage(NetworkMessageType type, int8_t column);
 };
 
 class ServerNetworkMessage : public NetworkMessage{

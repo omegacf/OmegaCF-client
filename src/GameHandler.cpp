@@ -8,26 +8,18 @@ GameHandler::GameHandler(std::string host, unsigned short port){
         Debug::printLine("Problems connecting to the server");
         exit(0);
     }
+
+    DataHandlingService::getInstance().sendMessage(ClientNetworkMessage(NetworkMessageType::Register, 42));
     
 }
 
 void GameHandler::run(){
     Debug::printLine("Run AI");
-    // receive playerNumber
-    ServerNetworkMessage configurationMessage = DataHandlingService::getInstance().receiveMessage();
-    while (configurationMessage.getMessageType() != NetworkMessageType::Configuration) {
-        if(configurationMessage.getMessageType() == NetworkMessageType::EndGame) {
-            handeEndGame(configurationMessage);
-        } else {
-            Debug::printLine("Unexpected message type!");
-            exit(0);
-        }
-        configurationMessage = DataHandlingService::getInstance().receiveMessage();
-    }
+    
     // init player
-    this->_playerNumber = configurationMessage.GameConfig.playerNumber;
+    this->_playerNumber = 1;
     std::stringstream ss;
-    ss << "Got playerNumber from server: " << (int) configurationMessage.GameConfig.playerNumber;
+    ss << "Got playerNumber from server: " << (int) 1;
     Debug::printLine(ss.str());
 
     // init game
@@ -76,7 +68,7 @@ void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
     PossibleMove move = this->_bmc.minimax(this->_game.CurrentMap, 6);
     Debug::printLine("Move to send to the server:");
     Debug::printLine(std::to_string(move.Move));
-    DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)move.Move));
+    DataHandlingService::getInstance().sendMessage(ClientNetworkMessage(NetworkMessageType::Answer, (int8_t)move.Move));
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
