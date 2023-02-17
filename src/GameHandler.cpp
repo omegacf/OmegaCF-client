@@ -17,7 +17,7 @@ void GameHandler::run(){
     ServerNetworkMessage configurationMessage = DataHandlingService::getInstance().receiveMessage();
     while (configurationMessage.getMessageType() != NetworkMessageType::Configuration) {
         if(configurationMessage.getMessageType() == NetworkMessageType::EndGame) {
-            handeEndGame(configurationMessage);
+            handleEndGame(configurationMessage);
         } else {
             Debug::printLine("Unexpected message type!");
             exit(0);
@@ -61,7 +61,7 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
             break;
         case NetworkMessageType::EndGame:
             Debug::printLine("EndGame");
-            handeEndGame(message);
+            handleEndGame(message);
             endOfGame = true;
             break;
         default:
@@ -87,7 +87,7 @@ void GameHandler::handleMove(ServerNetworkMessage message) {
     Debug::printLine(ss.str());
 }
 
-void GameHandler::handeEndGame(ServerNetworkMessage message) {
+void GameHandler::handleEndGame(ServerNetworkMessage message) {
     if(message.EndGame.playerNumber == 0) {
         Debug::printLine("Draw!");
     } else {

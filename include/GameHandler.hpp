@@ -18,7 +18,7 @@ class GameHandler{
         void handleMoveRequest(ServerNetworkMessage sm);
         void handleMove(ServerNetworkMessage sm);
         bool handleMessage(ServerNetworkMessage sm);
-        void handeEndGame(ServerNetworkMessage sm);
+        void handleEndGame(ServerNetworkMessage sm);
         void run();
         ~GameHandler();
 };
