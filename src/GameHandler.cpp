@@ -34,7 +34,7 @@ void GameHandler::run(){
     // widht height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
-    this->_bmc = BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber));
+    this->_bmc = new BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber), 6);
 
     bool endOfGame = false;
     while(!endOfGame) {
@@ -73,7 +73,7 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 }
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
-    PossibleMove move = this->_bmc.minimax(this->_game.CurrentMap, 6);
+    PossibleMove move = this->_bmc->getBestMove(this->_game.CurrentMap);
     Debug::printLine("Move to send to the server:");
     Debug::printLine(std::to_string(move.Move));
     DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)move.Move));
@@ -101,4 +101,5 @@ void GameHandler::handleEndGame(ServerNetworkMessage message) {
 }
 
 GameHandler::~GameHandler(){
+    delete this->_bmc;
 }

@@ -108,6 +108,10 @@ bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player
     return false;
 }
 
+PossibleMove BestMoveCalculator::getBestMove(Grid& grid) {
+    return this->minimax(grid, this->_depth);
+}
+
 PossibleMove BestMoveCalculator::minimax(Grid& grid, int depth, int alpha, int beta, bool isMax) {
     bool draw = this->_game.getPossibleMoves(this->_player, grid).size() == 0;
 

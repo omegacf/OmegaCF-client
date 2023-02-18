@@ -9,7 +9,7 @@ class PossibleMove{
         PossibleMove(int move, Grid grid) : 
             Move(move), AfterGrid(grid){};
         PossibleMove() {};
-        int Score;
+        int Score = 0;
         int Move = 0;
         Grid AfterGrid;
 };
