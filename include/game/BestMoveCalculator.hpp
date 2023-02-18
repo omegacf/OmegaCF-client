@@ -18,7 +18,10 @@ class BestMoveCalculator: public IBestMoveCalculator {
         int _min = -100000;
         int _depth = 6;
     public:
-        BestMoveCalculator(Game game, Player player, int depth) : _game(game), _player(player), _depth(depth) {};
+        BestMoveCalculator(Game game, Player player, int depth) : _game(game), _player(player), _depth(depth) {
+            // generate seed
+            srand (time(NULL));
+        };
         BestMoveCalculator() {};
         int evaluateBoard(Grid grid, Player player, Player opponent);
         bool checkLine(int numberOfStones, Grid& grid, Player player);

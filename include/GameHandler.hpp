@@ -5,6 +5,7 @@
 #include "network/DataHandlingService.hpp"
 #include "factory/GameFactory.hpp"
 #include "game/BestMoveCalculator.hpp"
+#include "game/RandomMoveCalculator.hpp"
 #include <limits>
 
 class GameHandler{

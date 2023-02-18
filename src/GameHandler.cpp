@@ -34,7 +34,8 @@ void GameHandler::run(){
     // widht height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
-    this->_bmc = new BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber), 6);
+    // this->_bmc = new BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber), 6);
+    this->_bmc = new RandomMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber));
 
     bool endOfGame = false;
     while(!endOfGame) {
