@@ -3,13 +3,19 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 class Grid{
+    private:
+        std::string ternary_to_hexadecimal(const std::string& ternary);
     public:
         std::vector<std::vector<uint8_t>> MapArray;
 
         Grid(){};
         Grid(std::vector<std::vector<uint8_t>> mapArray) : MapArray(mapArray){};
+
+        std::string getHash();
 
         inline uint8_t& getStone(int x, int y){
             return MapArray[y][x];
