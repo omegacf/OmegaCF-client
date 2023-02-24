@@ -10,7 +10,7 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -std=c++17 -O3 -Wall
-LIB := -L lib
+LIB := -L lib -ltensorflow
 INC := -I include
 
 INC_HT := $(INC)
@@ -22,11 +22,10 @@ OBJECTS_HT := $(filter-out build/main.o, $(OBJECTS)) $(SOURCES_HT:test/heuristic
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	@mkdir -p $(BINDIR)
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
-
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ $(LIB) -o $(TARGET) 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR) $(BUILDDIR)/game $(BUILDDIR)/network $(BUILDDIR)/player $(BUILDDIR)/util $(BUILDDIR)/factory
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $< && echo "[OK] $@"
+	@mkdir -p $(BUILDDIR) $(BUILDDIR)/game $(BUILDDIR)/network $(BUILDDIR)/player $(BUILDDIR)/util $(BUILDDIR)/factory $(BUILDDIR)/ml
+	@$(CC) $(CFLAGS) $(LIB) $(INC) -c -o $@ $< && echo "[OK] $@"
 
 $(TARGET_HT): $(OBJECTS_HT)
 	@mkdir -p $(BINDIR)
