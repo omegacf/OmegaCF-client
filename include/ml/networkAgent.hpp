@@ -3,23 +3,22 @@
 
 #include <vector>
 #include <string>
-#include <torch/torch.h>
 #include <iostream>
 
 #include "../game/Grid.hpp"
+#include "INetwork.hpp"
 
 
-class Network {
+class NetworkAgent {
     private:
-        torch::nn::Sequential _model;
+        INetwork* _model;
         std::vector<int8_t> _GridToInput(Grid& grid);
         std::string const _pathToModel = "models/";
-        std::string const _modelName;
     
 
 
     public:
-        Network(torch::nn::Sequential model, std::string modelName): _model(model), _modelName(modelName) {};
+        NetworkAgent(INetwork* model): _model(model) {};
         void evalPosition(Grid& grid);
         void update(); 
         void load();

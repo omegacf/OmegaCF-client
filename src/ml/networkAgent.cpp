@@ -1,6 +1,6 @@
-#include "../../include/ml/network.hpp"
+#include "../../include/ml/networkAgent.hpp"
 
-void Network::evalPosition(Grid& grid) {
+void NetworkAgent::evalPosition(Grid& grid) {
     // create input from grid
     torch::Tensor input = torch::rand({1, 1, 6, 7});
     std::cout << input << std::endl;
