@@ -36,6 +36,10 @@ class NetworkA : public torch::nn::Module, public INetwork{
             return std::make_pair(value, policy);
         }
 
+        void saveModel(std::string& path) {
+            torch::save(this->state_dict(), path);
+        }
+
         std::string getName() {
             return this->_name;
         }

@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <utility>
+#include <filesystem>
 
 #include "../game/Grid.hpp"
 #include "INetwork.hpp"
