@@ -4,22 +4,25 @@
 #include "INetwork.hpp"
 #include <torch/torch.h>
 #include <string>
+#include <utility>
 
 class NetworkA : public torch::nn::Module, public INetwork{
     private:
         std::string _name;
         torch::nn::Conv2d _conv1, _conv2, _conv3;
-        torch::nn::Linear _linear1, _output;
+        torch::nn::Linear _linear1, _outputValue, _outputPolicy;
     public:
-        NetworkA(int amountOutput = 7, std::string name = "NetworkA"):
+        NetworkA(std::string name = "NetworkA"):
             _conv1(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)),
             _conv2(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
             _conv3(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
             _linear1(128, 64),
-            _output(64, amountOutput)
+
+            _outputValue(64, 3),
+            _outputPolicy(64, 7)
         {};
 
-        torch::Tensor forward(torch::Tensor input) {
+        std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor input) {
             input = torch::relu(_conv1(input));
             input = torch::relu(_conv2(input));
             input = torch::relu(_conv3(input));
@@ -27,8 +30,10 @@ class NetworkA : public torch::nn::Module, public INetwork{
             input = input.view({input.size(0), -1});
             //std::cout << input << std::endl;
             input = torch::relu(_linear1(input));
-            input = _output(input);
-            return input;
+
+            torch::Tensor value = _outputValue(input);
+            torch::Tensor policy = _outputPolicy(input);
+            return std::make_pair(value, policy);
         }
 
         std::string getName() {
