@@ -4,13 +4,14 @@
 #include <vector>
 #include <string>
 #include <torch/torch.h>
+#include <iostream>
 
 #include "../game/Grid.hpp"
 
 
 class Network {
     private:
-        torch::nn::Module const _model;
+        torch::nn::Sequential _model;
         std::vector<int8_t> _GridToInput(Grid& grid);
         std::string const _pathToModel = "models/";
         std::string const _modelName;
@@ -18,8 +19,8 @@ class Network {
 
 
     public:
-        Network(torch::nn:Module model, std::string modelName): _model(model), _modelName(modelName) {};
-        auto evalPosition(Grid& grid);
+        Network(torch::nn::Sequential model, std::string modelName): _model(model), _modelName(modelName) {};
+        void evalPosition(Grid& grid);
         void update(); 
         void load();
         void save();

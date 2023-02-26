@@ -4,13 +4,20 @@
 #include "network.hpp"
 #include <torch/torch.h>
 
-class NetworkA : torch::nn::Module{
-    private:
-
+class NetworkA : public torch::nn::Sequential{
     public:
-        NetworkA():Network("ModelA") {
-
-        };
+        NetworkA() : torch::nn::Sequential(
+            torch::nn::Conv2d(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)),
+            torch::nn::ReLU(),
+            torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
+            torch::nn::ReLU(),
+            torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
+            torch::nn::ReLU().view({input.size(0), -1}),
+            torch::nn::Flatten(),
+            torch::nn::Linear(6*7*64, 64),
+            torch::nn::ReLU(),
+            torch::nn::Linear(64, 7)
+        ){};
 };
 #endif
 

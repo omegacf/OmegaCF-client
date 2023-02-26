@@ -4,6 +4,12 @@
 #include <string>
 #include <exception>
 
+
+#include "../include/ml/network.hpp"
+#include "../include/ml/networkA.hpp"
+
+#include <torch/torch.h>
+
 static void printHelp(){
 	std::cout << "-i --ip\t IP-Adress (default 127.0.0.1)" << std::endl;
 	std::cout << "-p --port\t Port (default 7777)" << std::endl;
@@ -12,9 +18,18 @@ static void printHelp(){
 }
 
 int main(int argc, char *argv[]) {
+
+	torch::Tensor tensor = torch::rand({2, 3});
+  	std::cout << tensor << std::endl;
+
+	Grid grid;
+	Network net(NetworkA(), "NetworkA");
+	net.evalPosition(grid);
 	
 	std::string ip = "127.0.0.1";
 	unsigned short port = 7777;
+
+	return 0;
 
 	Debug::setFlag(true);
 
