@@ -7,7 +7,9 @@
 
 #include "../include/ml/networkAgent.hpp"
 #include "../include/ml/network.hpp"
+#include <tuple>
 #include <utility>
+#include "../include/ml/replayMemory.hpp"
 
 static void printHelp(){
 	std::cout << "-i --ip\t IP-Adress (default 127.0.0.1)" << std::endl;
@@ -27,6 +29,16 @@ int main(int argc, char *argv[]) {
 	Grid grid;
 	netAgent.evalPosition(grid);
 	netAgent.save();
+
+	ReplayMemory<std::tuple<int, int, int>> rm(2);
+	std::tuple<int, int, int> t1 = std::make_tuple(3, 4, 5);
+	std::tuple<int, int, int> t2 = std::make_tuple(6, 7, 8);
+	rm.push_back(t1);
+	rm.push_back(t2);
+	std::vector<std::tuple<int, int, int>> v(1);
+	if (!rm.getSample(1, v))
+		std::cout << "getSample error" << std::endl;
+	std::cout << get<0>(v.at(0)) << std::endl;
 
 	std::string ip = "127.0.0.1";
 	unsigned short port = 7777;
