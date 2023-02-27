@@ -5,28 +5,35 @@
 #include <string>
 #include <iostream>
 #include <utility>
+#include <tuple>
 #include <filesystem>
 
 #include "../game/Grid.hpp"
+#include "replayMemory.hpp"
 #include "network.hpp"
 
 
 class NetworkAgent {
     private:
         Network _qNet, _targetNet;
-        std::vector<int8_t> _GridToInput(Grid& grid);
         std::string const _pathToModel = "models/";
         std::string const _fileExt = ".pt";
 
         std::string const _qNetName = "qNet";
         std::string const _targetNetName = "targetNet";
+
+        int const _batchSize = 100;
+        int const _memorySize = 1000;
+
+        ReplayMemory<std::tuple<int, int>> const _memory;
     
         void _saveModel(Network& model, std::string const& name);
+        std::vector<int8_t> _GridToInput(Grid& grid);
 
     public:
-        NetworkAgent(Network model): _qNet(model), _targetNet(model) {};
+        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<std::tuple<int, int>>(this->_memorySize)) {};
         void evalPosition(Grid& grid);
-        void update(); 
+        void optimize(); 
         void load();
         void save();
 };
