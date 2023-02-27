@@ -1,18 +1,16 @@
-#ifndef NETWORKA_HPP
-#define NETWORKA_HPP
+#ifndef NETWORK_HPP
+#define NETWORK_HPP
 
-#include "INetwork.hpp"
 #include <torch/torch.h>
 #include <string>
 #include <utility>
 
-class NetworkA : public torch::nn::Module, public INetwork{
+class NetworkImpl : public torch::nn::Module{
     private:
-        std::string _name;
         torch::nn::Conv2d _conv1, _conv2, _conv3;
         torch::nn::Linear _linear1, _outputValue, _outputPolicy;
     public:
-        NetworkA(std::string name = "NetworkA"):
+        NetworkImpl():
             _conv1(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)),
             _conv2(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
             _conv3(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
@@ -37,14 +35,17 @@ class NetworkA : public torch::nn::Module, public INetwork{
         }
 
         void saveModel(std::string& path) {
-            torch::save(this->state_dict(), path);
+            const torch::nn::Module* tmpModule = this;
+            //torch::save(*this, path);
+            //torch::Tensor t = torch::rand({1, 1, 6, 7});
+            //torch::save(t, path);
+            torch::serialize::OutputArchive output_archive;
+            this->save(output_archive);
+            output_archive.save_to(path);
         }
-
-        std::string getName() {
-            return this->_name;
-        }
-        ~NetworkA(){};
+        ~NetworkImpl(){};
 };
+TORCH_MODULE(Network);
 #endif
 
 

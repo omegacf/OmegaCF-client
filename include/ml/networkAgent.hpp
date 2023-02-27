@@ -1,5 +1,5 @@
-#ifndef NETWORK_HPP
-#define NETWORK_HPP
+#ifndef NETWORKAGENT_HPP
+#define NETWORKAGENT_HPP
 
 #include <vector>
 #include <string>
@@ -8,19 +8,23 @@
 #include <filesystem>
 
 #include "../game/Grid.hpp"
-#include "INetwork.hpp"
+#include "network.hpp"
 
 
 class NetworkAgent {
     private:
-        INetwork* _model;
+        Network _qNet, _targetNet;
         std::vector<int8_t> _GridToInput(Grid& grid);
         std::string const _pathToModel = "models/";
-    
+        std::string const _fileExt = ".pt";
 
+        std::string const _qNetName = "qNet";
+        std::string const _targetNetName = "targetNet";
+    
+        void _saveModel(Network& model, std::string const& name);
 
     public:
-        NetworkAgent(INetwork* model): _model(model) {};
+        NetworkAgent(Network model): _qNet(model), _targetNet(model) {};
         void evalPosition(Grid& grid);
         void update(); 
         void load();
