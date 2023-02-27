@@ -13,6 +13,7 @@ class ReplayMemory {
         int _pos = 0;
         int _size = 0;
     public:
+        ReplayMemory():_capacity(0) {};
         ReplayMemory(int capacity):_capacity(capacity) {
             this->_buffer = new T[capacity];
         }
@@ -40,9 +41,6 @@ class ReplayMemory {
             std::vector<int> indices(this->_size);
             std::iota(indices.begin(), indices.end(), 0);
             std::shuffle(indices.begin(), indices.end(), gen);
-            for(int i : indices) {
-                std::cout << "Shuffle: " << i << std::endl;
-            }
 
             for (int i = 0; i < sampleSize; ++i) {
                 int pos = indices[i] % this->_capacity;
