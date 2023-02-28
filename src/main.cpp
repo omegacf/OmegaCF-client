@@ -10,6 +10,7 @@
 #include <tuple>
 #include <utility>
 #include "../include/ml/replayMemory.hpp"
+#include "../include/game/Game.hpp"
 
 static void printHelp(){
 	std::cout << "-i --ip\t IP-Adress (default 127.0.0.1)" << std::endl;
@@ -19,15 +20,13 @@ static void printHelp(){
 }
 
 int main(int argc, char *argv[]) {
-
-	torch::Tensor tensor = torch::rand({2, 3});
-  	std::cout << tensor << std::endl;
-
 	Network net;
 	NetworkAgent netAgent(net);
 
-	Grid grid;
-	netAgent.evalPosition(grid);
+	Game game = GameFactory::create(7, 6, 2);
+	game.setStone(game.getPlayer(1), 6, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 2, game.CurrentMap);
+	netAgent.evalPosition(game.CurrentMap, 1);
 	netAgent.save();
 
 	ReplayMemory<std::tuple<int, int, int>> rm(2);

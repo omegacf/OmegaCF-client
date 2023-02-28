@@ -7,11 +7,17 @@
 #include <utility>
 #include <tuple>
 #include <filesystem>
+#include <array>
+#include <algorithm>
 
 #include "../game/Grid.hpp"
 #include "replayMemory.hpp"
 #include "network.hpp"
 
+struct NetworkOutput{
+    double val; //-1: loss, 0: draw, 1: win
+    std::array<double, 7> action;
+};
 
 class NetworkAgent {
     private:
@@ -28,11 +34,11 @@ class NetworkAgent {
         ReplayMemory<std::tuple<int, int>> const _memory;
     
         void _saveModel(Network& model, std::string const& name);
-        std::vector<int8_t> _GridToInput(Grid& grid);
+        torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
         NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<std::tuple<int, int>>(this->_memorySize)) {};
-        void evalPosition(Grid& grid);
+        NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 
         void load();
         void save();

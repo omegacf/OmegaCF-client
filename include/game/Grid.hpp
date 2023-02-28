@@ -11,9 +11,10 @@ class Grid{
         std::string ternary_to_hexadecimal(const std::string& ternary);
     public:
         std::vector<std::vector<uint8_t>> MapArray;
-
+        uint8_t SizeX, SizeY;
         Grid(){};
-        Grid(std::vector<std::vector<uint8_t>> mapArray) : MapArray(mapArray){};
+        Grid(std::vector<std::vector<uint8_t>> mapArray, uint8_t sizeX, uint8_t sizeY) 
+            : MapArray(mapArray), SizeX(sizeX), SizeY(sizeY){};
 
         std::string getHash();
 
@@ -22,7 +23,7 @@ class Grid{
         }
 
         friend std::ostream& operator << (std::ostream &out, const Grid &g){
-            for(std::vector<uint8_t> iv : g.MapArray){
+            for(auto&& iv : g.MapArray){
                 for(uint8_t i : iv){
                     out << (int)i << " ";
                 }
