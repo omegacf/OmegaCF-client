@@ -1,33 +1,48 @@
 #include "../../include/ml/networkAgent.hpp"
 
 torch::Tensor NetworkAgent::_gridToInput(Grid& grid, uint8_t playerNumber) {
-    std::cout << grid << std::endl;
-    std::vector<int> vec(grid.SizeX*grid.SizeY);
-    for(std::vector<uint8_t>& v : grid.MapArray) {
-        for(auto&& i : v) {
-            int tmp = 0;
-            if (i != 0) {
-                if (i == playerNumber)
-                    tmp = 1;
+    float tmpArray[grid.SizeY][grid.SizeX];
+
+    for(int i = 0; i < grid.SizeY; ++i) {
+        for(int j = 0; j < grid.SizeX; ++j) {
+            float tmp = 0.0;
+            uint8_t stone = grid.getStone(j, i);
+            if (stone != 0) {
+                if (stone == playerNumber)
+                    tmp = 1.0;
                 else
-                    tmp = -1;
+                    tmp = -1.0;
             }
-            vec.push_back(tmp);
+            tmpArray[i][j] = tmp;
         }
     }
-
-    return torch::from_blob(vec.data(), {1, 1, grid.SizeY, grid.SizeX}, torch::TensorOptions().dtype(torch::kFloat16));
+    torch::Tensor t = torch::from_blob(tmpArray, {1, 1, grid.SizeY, grid.SizeX}, torch::kFloat32);
+    // https://stackoverflow.com/questions/64284893/libtorch-why-does-my-tensor-change-value-when-returned-from-a-method-into-anoth
+    return t.clone();
 }
 
 NetworkOutput NetworkAgent::evalPosition(Grid& grid, uint8_t playerNumber) {
-    std::cout << "Eval position" << std::endl;
     // create input from grid
     torch::Tensor input = this->_gridToInput(grid, playerNumber);
-    std::cout << input << std::endl;
 
     std::pair<torch::Tensor, torch::Tensor> output = this->_qNet->forward(input);
-    std::cout << output.first << std::endl;
-    std::cout << output.second << std::endl;
+
+    std::array<float, 3> valArray;
+    int num_elements = output.first.numel();
+    assert(num_elements == 3);
+
+    std::array<float, 7> actionArray;
+    num_elements = output.second.numel();
+    assert(num_elements == 7);
+
+    std::copy(output.first.data_ptr<float>(), output.first.data_ptr<float>()+3, valArray.begin());
+    std::copy(output.second.data_ptr<float>(), output.second.data_ptr<float>()+7, actionArray.begin());
+
+    NetworkOutput nwOutput;
+    nwOutput.val = valArray;
+    nwOutput.action = actionArray;
+
+    return nwOutput;
 }
 
 void NetworkAgent::_saveModel(Network& model, std::string const& name) {

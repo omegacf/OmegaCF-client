@@ -12,7 +12,8 @@ class Grid{
     public:
         std::vector<std::vector<uint8_t>> MapArray;
         uint8_t SizeX, SizeY;
-        Grid(){};
+
+        Grid():SizeX(0), SizeY(0){};
         Grid(std::vector<std::vector<uint8_t>> mapArray, uint8_t sizeX, uint8_t sizeY) 
             : MapArray(mapArray), SizeX(sizeX), SizeY(sizeY){};
 

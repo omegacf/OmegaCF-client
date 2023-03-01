@@ -12,7 +12,7 @@ void Game::setStone(Player player, int x, Grid& grid){
     grid.getStone(x, y-1) = player.Id;
 }
 
-std::vector<PossibleMove> Game::getPossibleMoves(Player player, Grid grid){
+std::vector<PossibleMove> Game::getPossibleMoves(Player& player, Grid& grid){
     std::vector<PossibleMove> moves;
     for(int x = 0; x < this->SizeX; x++){
         if(grid.getStone(x, 0) == 0){

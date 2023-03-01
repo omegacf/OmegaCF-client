@@ -22,7 +22,7 @@ class Game{
         Game() : SizeX(0), SizeY(0) {};
 
         void setStone(Player player, int x, Grid& grid);
-        std::vector<PossibleMove> getPossibleMoves(Player player, Grid grid);
+        std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
         Player getPlayer(int8_t playerNumber);
 };
 #endif

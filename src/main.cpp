@@ -7,6 +7,7 @@
 
 #include "../include/ml/networkAgent.hpp"
 #include "../include/ml/network.hpp"
+#include "../include/ml/qLearningAgent.hpp"
 #include <tuple>
 #include <utility>
 #include "../include/ml/replayMemory.hpp"
@@ -26,9 +27,16 @@ int main(int argc, char *argv[]) {
 	Game game = GameFactory::create(7, 6, 2);
 	game.setStone(game.getPlayer(1), 6, game.CurrentMap);
 	game.setStone(game.getPlayer(2), 2, game.CurrentMap);
-	netAgent.evalPosition(game.CurrentMap, 1);
-	netAgent.save();
 
+	Player player = game.getPlayer(1);
+	QLearningAgent agent(&player, &game, &netAgent);
+
+	std::cout << agent.chooseAction(game.CurrentMap).Move << std::endl;
+
+	//NetworkOutput output = netAgent.evalPosition(game.CurrentMap, 1);
+
+	// netAgent.save();
+/*
 	ReplayMemory<std::tuple<int, int, int>> rm(2);
 	std::tuple<int, int, int> t1 = std::make_tuple(3, 4, 5);
 	std::tuple<int, int, int> t2 = std::make_tuple(6, 7, 8);
@@ -38,7 +46,7 @@ int main(int argc, char *argv[]) {
 	if (!rm.getSample(1, v))
 		std::cout << "getSample error" << std::endl;
 	std::cout << get<0>(v.at(0)) << std::endl;
-
+*/
 	std::string ip = "127.0.0.1";
 	unsigned short port = 7777;
 

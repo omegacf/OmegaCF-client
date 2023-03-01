@@ -15,8 +15,8 @@
 #include "network.hpp"
 
 struct NetworkOutput{
-    double val; //-1: loss, 0: draw, 1: win
-    std::array<double, 7> action;
+    std::array<float, 3> val; // loss, draw, win
+    std::array<float, 7> action;
 };
 
 class NetworkAgent {
@@ -37,7 +37,10 @@ class NetworkAgent {
         torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
-        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<std::tuple<int, int>>(this->_memorySize)) {};
+        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<std::tuple<int, int>>(this->_memorySize)) {
+            torch::manual_seed(0);
+            this->_qNet->eval();
+        };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 
         void load();
