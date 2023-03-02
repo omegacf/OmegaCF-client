@@ -1,6 +1,9 @@
 #ifndef NETWORKAGENT_HPP
 #define NETWORKAGENT_HPP
 
+// state, (action, value), nextState, reward, isLastMove
+#define MEMORY_TYPE std::tuple<torch::Tensor, int, int, torch::Tensor, int, bool>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -13,6 +16,7 @@
 #include "../game/Grid.hpp"
 #include "replayMemory.hpp"
 #include "network.hpp"
+#include "../util/utils.hpp"
 
 struct NetworkOutput{
     std::array<float, 3> val; // loss, draw, win
@@ -28,18 +32,23 @@ class NetworkAgent {
         std::string const _qNetName = "qNet";
         std::string const _targetNetName = "targetNet";
 
+        float const _gamma = 0.6;
+        torch::optim::Adam _optimizer;
+
         int const _batchSize = 100;
         int const _memorySize = 1000;
 
-        ReplayMemory<std::tuple<int, int>> const _memory;
+        ReplayMemory<MEMORY_TYPE> _memory;
     
         void _saveModel(Network& model, std::string const& name);
+        void _loadModel(Network& model, std::string const& name);
         torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
-        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<std::tuple<int, int>>(this->_memorySize)) {
+        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<MEMORY_TYPE>(this->_memorySize)) {
             torch::manual_seed(0);
-            this->_qNet->eval();
+            this->_qNet->train();
+            this->_optimizer = torch::optim::Adam(model->parameters(), 0.01);
         };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 

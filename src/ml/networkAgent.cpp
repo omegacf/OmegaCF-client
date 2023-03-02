@@ -54,7 +54,65 @@ void NetworkAgent::_saveModel(Network& model, std::string const& name) {
     torch::save(model, fullPathString);
 }
 
+void NetworkAgent::_loadModel(Network& model, std::string const& name) {
+    std::string fullPathString = this->_pathToModel + name + this->_fileExt;
+    std::filesystem::path filepath = this->_pathToModel;
+    if (!std::filesystem::is_directory(filepath)) {
+        std::filesystem::create_directory(filepath);
+    }
+
+    torch::load(model, fullPathString);
+}
+
+void NetworkAgent::load() {
+    this->_loadModel(this->_qNet, this->_qNetName);
+    this->_loadModel(this->_targetNet, this->_targetNetName);
+}
+
 void NetworkAgent::save() {
     this->_saveModel(this->_qNet, this->_qNetName);
     this->_saveModel(this->_targetNet, this->_targetNetName);
+}
+
+void NetworkAgent::optimize() {
+    if (this->_memory.size() < this->_batchSize) {
+        return;
+    }
+
+    std::vector<MEMORY_TYPE>batch(this->_batchSize);
+    this->_memory.getSample(this->_batchSize, batch);
+
+    for (MEMORY_TYPE& mem : batch) {
+        // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
+        // Todo
+        torch::Tensor target = this->_qNet->forward(std::get<0>(mem)).first;
+        
+        // check if it was last move
+        if (std::get<5>(mem)) {
+            target[0][std::get<1>(mem)] = std::get<4>(mem);
+            // self.q_network.fit(state, target, epochs=1, verbose=0)
+            torch::Tensor t = this->_targetNet->forward(std::get<0>(mem)).first;
+            torch::Tensor loss = torch::mse_loss(target, t);
+            this->_optimizer.zero_grad();
+            loss.backward();
+            this->_optimizer.step();
+        } else {
+            torch::Tensor t = this->_targetNet->forward(std::get<3>(mem)).first;
+            float tMax = getMaxFromArray<float>(t.data_ptr<float>(), t.numel());
+            target[0][std::get<1>(mem)] = std::get<4>(mem) + this->_gamma * tMax;
+
+            torch::Tensor loss = torch::smooth_l1_loss(target, t);
+            
+            this->_optimizer.zero_grad();
+            loss.backward();
+            for (auto& param : this->_qNet->parameters()) {
+                param.grad().data().clamp(-1, 1);
+            }
+            this->_optimizer.step();
+        }
+    }
+
+    // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
+
+    // Calculate Q-Values (with target net) from nextState and select max (e.g. q-value of action)
 }
