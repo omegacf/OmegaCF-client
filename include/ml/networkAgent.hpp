@@ -33,7 +33,6 @@ class NetworkAgent {
         std::string const _targetNetName = "targetNet";
 
         float const _gamma = 0.6;
-        torch::optim::Adam _optimizer;
 
         int const _batchSize = 100;
         int const _memorySize = 1000;
@@ -48,7 +47,6 @@ class NetworkAgent {
         NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<MEMORY_TYPE>(this->_memorySize)) {
             torch::manual_seed(0);
             this->_qNet->train();
-            this->_optimizer = torch::optim::Adam(model->parameters(), 0.01);
         };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 

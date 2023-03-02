@@ -78,7 +78,7 @@ void NetworkAgent::optimize() {
     if (this->_memory.size() < this->_batchSize) {
         return;
     }
-
+    torch::optim::Adam optimizer(this->_qNet->parameters(), 0.01);
     std::vector<MEMORY_TYPE>batch(this->_batchSize);
     this->_memory.getSample(this->_batchSize, batch);
 
@@ -93,9 +93,9 @@ void NetworkAgent::optimize() {
             // self.q_network.fit(state, target, epochs=1, verbose=0)
             torch::Tensor t = this->_targetNet->forward(std::get<0>(mem)).first;
             torch::Tensor loss = torch::mse_loss(target, t);
-            this->_optimizer.zero_grad();
+            optimizer.zero_grad();
             loss.backward();
-            this->_optimizer.step();
+            optimizer.step();
         } else {
             torch::Tensor t = this->_targetNet->forward(std::get<3>(mem)).first;
             float tMax = getMaxFromArray<float>(t.data_ptr<float>(), t.numel());
@@ -103,12 +103,12 @@ void NetworkAgent::optimize() {
 
             torch::Tensor loss = torch::smooth_l1_loss(target, t);
             
-            this->_optimizer.zero_grad();
+            optimizer.zero_grad();
             loss.backward();
             for (auto& param : this->_qNet->parameters()) {
                 param.grad().data().clamp(-1, 1);
             }
-            this->_optimizer.step();
+            optimizer.step();
         }
     }
 
