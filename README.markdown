@@ -13,7 +13,7 @@ wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps
 unzip libtorch-shared-with-deps-latest.zip 
 rm libtorch-shared-with-deps-latest.zip 
 ````
-## Build project
+### Build project
 ````
 mkdir build
 cd build
