@@ -21,8 +21,8 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
 bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player) {
     int lineSize = 4;
     // verticalCheck 
-    for (int y = 0; y < this->_game.SizeY-3 ; y++ ){
-        for (int x = 0; x < this->_game.SizeX; x++){
+    for (int y = 0; y < grid.SizeY-3 ; y++ ){
+        for (int x = 0; x < grid.SizeX; x++){
             bool brk = false;
             int emptyCounter = 0;
             for(int s = 0; s < lineSize && !brk; s++) {
@@ -43,8 +43,8 @@ bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player
     }
 
     // horizontalCheck
-    for (int x = 0; x < this->_game.SizeX-3; x++ ){
-        for (int y = 0; y < this->_game.SizeY; y++){
+    for (int x = 0; x < grid.SizeX-3; x++ ){
+        for (int y = 0; y < grid.SizeY; y++){
             bool brk = false;
             int emptyCounter = 0;
             for(int s = 0; s < lineSize && !brk; s++) {
@@ -64,8 +64,8 @@ bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player
         }
     }
     // ascendingDiagonalCheck 
-    for (int x=3; x < this->_game.SizeX; x++){
-        for (int y=0; y < this->_game.SizeY-3; y++){
+    for (int x=3; x < grid.SizeX; x++){
+        for (int y=0; y < grid.SizeY-3; y++){
             bool brk = false;
             int emptyCounter = 0;
             for(int s = 0; s < lineSize && !brk; s++) {
@@ -85,8 +85,8 @@ bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player
         }
     }
     // descendingDiagonalCheck
-    for (int x=3; x < this->_game.SizeX; x++){
-        for (int y=3; y < this->_game.SizeY; y++){
+    for (int x=3; x < grid.SizeX; x++){
+        for (int y=3; y < grid.SizeY; y++){
             bool brk = false;
             int emptyCounter = 0;
             for(int s = 0; s < lineSize && !brk; s++) {

@@ -24,9 +24,8 @@ class BestMoveCalculator: public IBestMoveCalculator {
         };
         BestMoveCalculator() {};
         int evaluateBoard(Grid grid, Player player, Player opponent);
-        bool checkLine(int numberOfStones, Grid& grid, Player player);
 
         virtual PossibleMove getBestMove(Grid& grid);
-        PossibleMove minimax(Grid& grid, int depth, int alpha = -100000, int beta = 100000, bool isMax = true);
+        static PossibleMove minimax(Grid& grid, int depth, int alpha = -100000, int beta = 100000, bool isMax = true);
 };
 #endif

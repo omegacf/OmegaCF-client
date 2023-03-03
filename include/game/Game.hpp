@@ -21,9 +21,9 @@ class Game{
 
         Game() : SizeX(0), SizeY(0) {};
 
-        void setStone(Player player, int x, Grid& grid);
-        std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
+        static void setStone(Player player, int x, Grid& grid);
+        static std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
         Player getPlayer(int8_t playerNumber);
-        bool checkLine(int numberOfStones, Grid& grid, Player player);
+        static bool checkLine(int numberOfStones, Grid& grid, Player player);
 };
 #endif
