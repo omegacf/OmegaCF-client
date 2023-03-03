@@ -20,7 +20,7 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
 
 bool BestMoveCalculator::checkLine(int numberOfStones, Grid& grid, Player player) {
     int lineSize = 4;
-    // vedrticalCheck 
+    // verticalCheck 
     for (int y = 0; y < this->_game.SizeY-3 ; y++ ){
         for (int x = 0; x < this->_game.SizeX; x++){
             bool brk = false;
