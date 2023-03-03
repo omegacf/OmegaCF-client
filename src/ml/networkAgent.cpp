@@ -56,12 +56,9 @@ void NetworkAgent::_saveModel(Network& model, std::string const& name) {
 
 void NetworkAgent::_loadModel(Network& model, std::string const& name) {
     std::string fullPathString = this->_pathToModel + name + this->_fileExt;
-    std::filesystem::path filepath = this->_pathToModel;
-    if (!std::filesystem::is_directory(filepath)) {
-        std::filesystem::create_directory(filepath);
-    }
-
-    torch::load(model, fullPathString);
+    std::filesystem::path filepath = fullPathString;
+    if (std::filesystem::exists(filepath))
+        torch::load(model, fullPathString);
 }
 
 void NetworkAgent::load() {
@@ -84,20 +81,21 @@ void NetworkAgent::optimize() {
 
     for (MEMORY_TYPE& mem : batch) {
         // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
-        // Todo
-        torch::Tensor target = this->_qNet->forward(std::get<0>(mem)).first;
-        
+        torch::Tensor target = this->_qNet->forward(std::get<0>(mem)).second;
         // check if it was last move
         if (std::get<5>(mem)) {
             target[0][std::get<1>(mem)] = std::get<4>(mem);
             // self.q_network.fit(state, target, epochs=1, verbose=0)
-            torch::Tensor t = this->_targetNet->forward(std::get<0>(mem)).first;
+            torch::Tensor t = this->_targetNet->forward(std::get<0>(mem)).second;
             torch::Tensor loss = torch::mse_loss(target, t);
             optimizer.zero_grad();
             loss.backward();
+            for (auto& param : this->_qNet->parameters()) {
+                param.grad().data().clamp(-1, 1);
+            }
             optimizer.step();
         } else {
-            torch::Tensor t = this->_targetNet->forward(std::get<3>(mem)).first;
+            torch::Tensor t = this->_targetNet->forward(std::get<3>(mem)).second;
             float tMax = getMaxFromArray<float>(t.data_ptr<float>(), t.numel());
             target[0][std::get<1>(mem)] = std::get<4>(mem) + this->_gamma * tMax;
 
@@ -115,4 +113,9 @@ void NetworkAgent::optimize() {
     // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
 
     // Calculate Q-Values (with target net) from nextState and select max (e.g. q-value of action)
+}
+
+void NetworkAgent::addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove) {
+    MEMORY_TYPE mem = std::make_tuple(this->_gridToInput(state, playerNumber), action, 0, this->_gridToInput(newState, playerNumber), reward, isLastMove);
+    this->_memory.push_back(mem);
 }

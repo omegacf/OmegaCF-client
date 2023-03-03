@@ -24,5 +24,6 @@ class Game{
         void setStone(Player player, int x, Grid& grid);
         std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
         Player getPlayer(int8_t playerNumber);
+        bool checkLine(int numberOfStones, Grid& grid, Player player);
 };
 #endif

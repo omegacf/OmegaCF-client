@@ -34,7 +34,7 @@ class NetworkAgent {
 
         float const _gamma = 0.6;
 
-        int const _batchSize = 100;
+        int const _batchSize = 10;
         int const _memorySize = 1000;
 
         ReplayMemory<MEMORY_TYPE> _memory;
@@ -52,6 +52,7 @@ class NetworkAgent {
         void optimize(); 
         void load();
         void save();
+        void addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove);
 };
 #endif
 
