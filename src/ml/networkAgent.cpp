@@ -125,33 +125,42 @@ void NetworkAgent::addMemory(int playerNumber, Grid& state, int action, Grid& ne
 
 
 void NetworkAgent::test() {
-    torch::Device device = torch::kCPU;
-    // Set the model to training mode
-    this->_qNet->eval();
+    for (int i = 0; i < 10000; ++i) {
+        torch::Device device = torch::kCPU;
+        
 
 
-    // Create some input data and targets for a training iteration
-    torch::Tensor input = torch::ones({1, 1, 6, 7});
-    torch::Tensor target = torch::zeros({1, 7}, torch::kFloat16);
 
-    std::cout << target << std::endl;
+        // Create some input data and targets for a training iteration
+        torch::Tensor input = torch::rand({1, 1, 6, 7}, torch::kFloat);
+        torch::Tensor target = torch::ones({1, 7}, torch::kFloat);
 
-    // Define a loss function and an optimizer
-    torch::nn::CrossEntropyLoss criterion;
-    torch::optim::SGD optimizer(this->_qNet->parameters(), /*lr=*/0.1);
 
-    this->_qNet->train();
-    this->_qNet->to(device);
+        // Define a loss function and an optimizer
+        torch::nn::CrossEntropyLoss criterion;
+        torch::optim::SGD optimizer(this->_qNet->parameters(), /*lr=*/0.1);
+        // Set the model to training mode
+        this->_qNet->train();
+        this->_qNet->to(device);
 
-    // Perform a training iteration to update the model's weights
-    optimizer.zero_grad();
-    torch::Tensor output = this->_qNet->forward(input).second;
+        // Perform a training iteration to update the model's weights
+        optimizer.zero_grad();
+        torch::Tensor output = this->_qNet->forward(input).second;
 
-     std::cout << output << std::endl;
+        std::cout << output << std::endl;
 
-    torch::Tensor loss = criterion(output, target);
-    loss.backward();
-    optimizer.step();
+        torch::Tensor loss = criterion(output, target);
+        loss.backward();
+        for (auto& param : this->_qNet->parameters()) {
+            param.grad().data().clamp(-1, 1);
+        }
+        optimizer.step();
+        std::cout << "Loss: " << loss.item<float>() << std::endl;
+        
+    }
+        for (auto& param : this->_qNet->named_parameters()) {
+            
+        }
 
     // Save the model's weights to a file
     std::ofstream output_file("qNet.pt", std::ios::binary);
