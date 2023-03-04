@@ -125,8 +125,10 @@ void NetworkAgent::addMemory(int playerNumber, Grid& state, int action, Grid& ne
 
 
 void NetworkAgent::test() {
+    torch::Device device = torch::kCPU;
     // Set the model to training mode
-    this->_qNet->train();
+    this->_qNet->eval();
+
 
     // Create some input data and targets for a training iteration
     torch::Tensor input = torch::ones({1, 1, 6, 7});
@@ -137,6 +139,9 @@ void NetworkAgent::test() {
     // Define a loss function and an optimizer
     torch::nn::CrossEntropyLoss criterion;
     torch::optim::SGD optimizer(this->_qNet->parameters(), /*lr=*/0.1);
+
+    this->_qNet->train();
+    this->_qNet->to(device);
 
     // Perform a training iteration to update the model's weights
     optimizer.zero_grad();
