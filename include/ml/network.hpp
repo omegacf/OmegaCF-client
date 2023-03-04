@@ -8,7 +8,7 @@
 class NetworkImpl : public torch::nn::Module{
     private:
         torch::nn::Conv2d _conv1, _conv2, _conv3;
-        torch::nn::Linear _linear1, _outputValue, _outputPolicy;
+        torch::nn::Linear _linear1, _outputPolicy;
     public:
         NetworkImpl():
             _conv1(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)),
@@ -16,7 +16,7 @@ class NetworkImpl : public torch::nn::Module{
             _conv3(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
             _linear1(128, 64),
 
-            _outputValue(64, 3),
+            //_outputValue(64, 3),
             _outputPolicy(64, 7)
         {};
 
@@ -29,9 +29,9 @@ class NetworkImpl : public torch::nn::Module{
             //std::cout << input << std::endl;
             input = torch::relu(_linear1(input));
 
-            torch::Tensor value = _outputValue(input);
+            //torch::Tensor value = _outputValue(input);
             torch::Tensor policy = _outputPolicy(input);
-            return std::make_pair(value, policy);
+            return std::make_pair(policy, policy);
         }
 
         void saveModel(std::string& path) {
