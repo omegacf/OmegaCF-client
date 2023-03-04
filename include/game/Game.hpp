@@ -11,19 +11,17 @@
 class Game{
 
     public:
-        int SizeX;
-        int SizeY;
         Grid CurrentMap;
         std::vector<Player> Players;
 
         Game(int sizeX, int sizeY, Grid currentMap, std::vector<Player> players) 
-            : SizeX(sizeX), SizeY(sizeY), CurrentMap(currentMap), Players(players) {};
+            : CurrentMap(currentMap), Players(players) {};
+        Game(){};
 
-        Game() : SizeX(0), SizeY(0) {};
+        Player getPlayer(int8_t playerNumber);
 
         static void setStone(Player player, int x, Grid& grid);
         static std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
-        Player getPlayer(int8_t playerNumber);
         static bool checkLine(int numberOfStones, Grid& grid, Player player);
 };
 #endif

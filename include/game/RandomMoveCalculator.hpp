@@ -10,13 +10,9 @@
 
 class RandomMoveCalculator: public IBestMoveCalculator {
     private:
-        Game _game;
         Player _player;
     public:
-        RandomMoveCalculator(Game game, Player player) : _game(game), _player(player) {
-            // generate seed
-            srand (time(NULL));
-        };
+        RandomMoveCalculator(Player player) : _player(player) {};
         RandomMoveCalculator() {};
 
         virtual PossibleMove getBestMove(Grid& grid);

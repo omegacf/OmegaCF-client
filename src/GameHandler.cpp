@@ -31,11 +31,11 @@ void GameHandler::run(){
     Debug::printLine(ss.str());
 
     // init game
-    // widht height amountOfPlayers
+    // width height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
     // this->_bmc = new BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber), 6);
-    this->_bmc = new RandomMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber));
+    this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
 
     bool endOfGame = false;
     while(!endOfGame) {
@@ -81,7 +81,7 @@ void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
-    this->_game.setStone(this->_game.getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
+    Game::setStone(this->_game.getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
 
     std::stringstream ss;
     ss << this->_game.CurrentMap;

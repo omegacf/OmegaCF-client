@@ -19,7 +19,6 @@ class QLearningAgent {
         float _expRate = 0;
         // std::map<std::string, std::vector<double>> _Q;
         Player* _player;
-        Game* _game;
         float _alpha = 0;
         float _gamma = 0;
         NetworkAgent* _networkAgent;
@@ -27,11 +26,8 @@ class QLearningAgent {
         void updateQ(std::string state, uint8_t action, std::string newState, double reward);
 
     public:
-        QLearningAgent(Player* player, Game* game, NetworkAgent* nwAgent, float expRate=0.3, float alpha = 0.01, float gamma = 0.9) 
-        : _expRate(expRate), _player(player), _game(game), _networkAgent(nwAgent), _alpha(alpha), _gamma(gamma) {
-            // generate seed
-            srand (time(NULL));
-        };
+        QLearningAgent(Player* player, NetworkAgent* nwAgent, float expRate=0.3, float alpha = 0.01, float gamma = 0.9) 
+        : _expRate(expRate), _player(player), _networkAgent(nwAgent), _alpha(alpha), _gamma(gamma) {};
         PossibleMove chooseAction(Grid& grid);
 
 };

@@ -28,7 +28,8 @@ int main(int argc, char *argv[]) {
 	Debug::setFlag(true);
 
 	std::string ip = "127.0.0.1";
-	unsigned short port = 7777;
+	// unsigned short port = 7777;
+	unsigned short port = 100;
 
 	if(argc > 1){
 		for(int i = 1; i < argc; ++i) {
@@ -58,17 +59,19 @@ int main(int argc, char *argv[]) {
 
 	Network net;
 	NetworkAgent netAgent(net);
-
+	netAgent.test();
+	return 0;
 	netAgent.load();
 
 	Game game = GameFactory::create(7, 6, 2);
 
 	Player player = game.getPlayer(1);
-	QLearningAgent agent(&player, &game, &netAgent);
+	QLearningAgent agent(&player, &netAgent);
 
-	IBestMoveCalculator* bmc = new RandomMoveCalculator(game, game.getPlayer(2));
+	IBestMoveCalculator* bmc = new BestMoveCalculator(&game, game.getPlayer(2), 5);
+	IBestMoveCalculator* rmc = new RandomMoveCalculator(game.getPlayer(2));
 	Trainer trainer(&netAgent);
-	trainer.train(100, agent, bmc);
+	trainer.train(port, agent, bmc);
 
 	netAgent.save();
 

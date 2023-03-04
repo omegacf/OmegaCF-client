@@ -1,6 +1,7 @@
 #include "../../include/ml/trainer.hpp"
 
 void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator* opponent) {
+    this->_networkAgent->setMode(NetworkMode::Training);
     Debug::printLine("Start training...");
 
     int playerOneWinnings = 0;
@@ -19,7 +20,7 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
             if (playerTurn == 1) {
                 // qLearning
                 move = qAgent.chooseAction(game.CurrentMap).Move;
-                game.setStone(player, move, game.CurrentMap);
+                Game::setStone(player, move, game.CurrentMap);
             } else {
                 // Opponent
                 move = opponent->getBestMove(game.CurrentMap).Move;
@@ -28,7 +29,7 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
             Grid newState(game.CurrentMap);
 
             // check if game is over
-            if(game.checkLine(4, game.CurrentMap, player)) {
+            if(Game::checkLine(4, game.CurrentMap, player)) {
                 if(Debug::getFlag()) {
                     std::cout << "Player " << (int)player.Id << " has won" << std::endl;
                 }
@@ -37,13 +38,13 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
                     reward = 1;
                     playerOneWinnings++;
                 } else {
-                    reward = 0;
+                    reward = -1;
                     playerTwoWinnings++;
                 }
                 gameIsRunning = false;
             } else {
                 // check for draw
-                if (game.getPossibleMoves(player, game.CurrentMap).size() == 0) {
+                if (Game::getPossibleMoves(player, game.CurrentMap).size() == 0) {
                     // draw
                     reward = 0;
                     gameIsRunning = false;
@@ -52,7 +53,6 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
             }
             if (playerTurn == 1) {
                 this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
-                this->_networkAgent->optimize();
             }
             
             playerTurn = (playerTurn % 2) + 1;
@@ -60,8 +60,9 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
                 std::cout << game.CurrentMap << std::endl;
             }
         }
+        this->_networkAgent->optimize();
     }
-    if(Debug::getFlag()) {
+    if(true) {
         std::cout << "Player 1 winnings: " << playerOneWinnings << std::endl;
         std::cout << "Player 2 winnings: " << playerTwoWinnings << std::endl;
     } 

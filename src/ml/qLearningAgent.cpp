@@ -1,7 +1,7 @@
 #include "../../include/ml/qLearningAgent.hpp"
 
 PossibleMove QLearningAgent::chooseAction(Grid& grid) {
-    std::vector<PossibleMove> possibleMoves = this->_game->getPossibleMoves(*this->_player, grid);
+    std::vector<PossibleMove> possibleMoves = Game::getPossibleMoves(*this->_player, grid);
 
     if (static_cast<double>(rand()) / RAND_MAX <= this->_expRate) {
         return possibleMoves.at(rand() % possibleMoves.size());

@@ -63,12 +63,11 @@ void NetworkAgent::_loadModel(Network& model, std::string const& name) {
 
 void NetworkAgent::load() {
     this->_loadModel(this->_qNet, this->_qNetName);
-    this->_loadModel(this->_targetNet, this->_targetNetName);
+    this->_loadModel(this->_targetNet, this->_qNetName);
 }
 
 void NetworkAgent::save() {
     this->_saveModel(this->_qNet, this->_qNetName);
-    this->_saveModel(this->_targetNet, this->_targetNetName);
 }
 
 void NetworkAgent::optimize() {
@@ -97,18 +96,22 @@ void NetworkAgent::optimize() {
         } else {
             torch::Tensor t = this->_targetNet->forward(std::get<3>(mem)).second;
             float tMax = getMaxFromArray<float>(t.data_ptr<float>(), t.numel());
-            target[0][std::get<1>(mem)] = std::get<4>(mem) + this->_gamma * tMax;
+            t[0][std::get<1>(mem)] = std::get<4>(mem) + this->_gamma * tMax;
 
-            torch::Tensor loss = torch::smooth_l1_loss(target, t);
+            torch::Tensor loss = torch::smooth_l1_loss(target, t.clone());
             
             optimizer.zero_grad();
             loss.backward();
+            /*
             for (auto& param : this->_qNet->parameters()) {
                 param.grad().data().clamp(-1, 1);
             }
+            */
             optimizer.step();
+            std::cout << "Loss: " << loss.item<float>() << std::endl;
         }
     }
+    
 
     // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
 
@@ -118,4 +121,35 @@ void NetworkAgent::optimize() {
 void NetworkAgent::addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove) {
     MEMORY_TYPE mem = std::make_tuple(this->_gridToInput(state, playerNumber), action, 0, this->_gridToInput(newState, playerNumber), reward, isLastMove);
     this->_memory.push_back(mem);
+}
+
+
+void NetworkAgent::test() {
+    // Set the model to training mode
+    this->_qNet->train();
+
+    // Create some input data and targets for a training iteration
+    torch::Tensor input = torch::ones({1, 1, 6, 7});
+    torch::Tensor target = torch::zeros({1, 7}, torch::kFloat16);
+
+    std::cout << target << std::endl;
+
+    // Define a loss function and an optimizer
+    torch::nn::CrossEntropyLoss criterion;
+    torch::optim::SGD optimizer(this->_qNet->parameters(), /*lr=*/0.1);
+
+    // Perform a training iteration to update the model's weights
+    optimizer.zero_grad();
+    torch::Tensor output = this->_qNet->forward(input).second;
+
+     std::cout << output << std::endl;
+
+    torch::Tensor loss = criterion(output, target);
+    loss.backward();
+    optimizer.step();
+
+    // Save the model's weights to a file
+    std::ofstream output_file("qNet.pt", std::ios::binary);
+    torch::save(this->_qNet, output_file);
+
 }

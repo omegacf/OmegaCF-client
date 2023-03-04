@@ -23,6 +23,12 @@ struct NetworkOutput{
     std::array<float, 7> action;
 };
 
+typedef enum NetworkMode {
+    Training = 0,
+    Production = 1
+}
+NetworkMode;
+
 class NetworkAgent {
     private:
         Network _qNet, _targetNet;
@@ -30,7 +36,6 @@ class NetworkAgent {
         std::string const _fileExt = ".pt";
 
         std::string const _qNetName = "qNet";
-        std::string const _targetNetName = "targetNet";
 
         float const _gamma = 0.6;
 
@@ -45,64 +50,22 @@ class NetworkAgent {
 
     public:
         NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<MEMORY_TYPE>(this->_memorySize)) {
-            torch::manual_seed(0);
-            this->_qNet->train();
+            this->_targetNet->eval();
         };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 
         void load();
         void save();
         void addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove);
+        void inline setMode(NetworkMode mode) {
+            if(mode == NetworkMode::Training) {
+                this->_qNet->train();
+            } else {
+                this->_qNet->eval();
+            }
+        }
+
+        void test();
 };
+
 #endif
-
-/*
-import numpy as np
-from keras.models import Sequential, load_model
-from abc import ABC, abstractmethod
-import os
-
-save_dir = '../saved_models'
-
-
-class Network(ABC):
-    def __init__(self, model):
-        self.model = model
-        self.load()
-
-    def eval_position(self, board_state):
-        input = self._board_states_to_inputs([board_state])
-        result = self.model.predict(input)
-        return result
-
-    def update(self, board_states, rewards):
-        inputs = self._board_states_to_inputs(board_states)
-        outputs = np.array(rewards)
-        self.model.train_on_batch(inputs, outputs)
-
-    def load(self):
-        model_path = os.path.join(save_dir, self.get_save_file())
-        if os.path.isfile(model_path):
-            self.model = load_model(model_path)
-            print('Loaded model from', model_path)
-    
-    def save(self):
-        if not os.path.isdir(save_dir):
-            os.makedirs(save_dir)
-        model_path = os.path.join(save_dir, self.get_save_file())
-        self.model.save(model_path)
-
-    def _board_states_to_inputs(self, board_states):
-        inputs = np.array(board_states)
-        inputs = np.expand_dims(inputs, axis=3)
-
-        return inputs
-
-    @abstractmethod
-    def get_save_file(self):
-        pass
-
-    @abstractmethod
-    def get_name(self):
-        pass
-*/
