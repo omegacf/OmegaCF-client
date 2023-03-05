@@ -1,8 +1,8 @@
 #ifndef NETWORKAGENT_HPP
 #define NETWORKAGENT_HPP
 
-// state, (action, value), nextState, reward, isLastMove
-#define MEMORY_TYPE std::tuple<torch::Tensor, int, int, torch::Tensor, int, bool>
+// state, value, nextState, reward, isLastMove
+#define MEMORY_TYPE std::tuple<torch::Tensor, int, torch::Tensor, int, bool>
 
 #include <vector>
 #include <string>
@@ -39,8 +39,8 @@ class NetworkAgent {
 
         float const _gamma = 0.6;
 
-        int const _batchSize = 100;
-        int const _memorySize = 10000;
+        int const _batchSize = 10;
+        int const _memorySize = 1000;
 
         ReplayMemory<MEMORY_TYPE> _memory;
     
