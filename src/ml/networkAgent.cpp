@@ -74,6 +74,59 @@ void NetworkAgent::optimize() {
     if (this->_memory.size() < this->_batchSize) {
         return;
     }
+
+    torch::optim::Adam optimizer(this->_qNet->parameters(), 0.01);
+
+    std::vector<MEMORY_TYPE>batch(this->_batchSize);
+    this->_memory.getSample(this->_batchSize, batch);
+
+
+    std::vector<torch::Tensor> states;
+    std::vector<torch::Tensor> new_states;
+    std::vector<torch::Tensor> actions;
+    std::vector<torch::Tensor> rewards;
+    std::vector<torch::Tensor> dones;
+
+    for (MEMORY_TYPE& i : batch) {
+        states.push_back(std::get<0>(i));
+        actions.push_back(torch::tensor({std::get<1>(i)}));
+        new_states.push_back(std::get<2>(i));
+        rewards.push_back(torch::tensor({std::get<3>(i)}));
+        dones.push_back(torch::tensor({(int)std::get<4>(i)}));
+    }
+
+    torch::Tensor states_tensor;
+    torch::Tensor new_states_tensor;
+    torch::Tensor actions_tensor;
+    torch::Tensor rewards_tensor;
+    torch::Tensor dones_tensor;
+
+    states_tensor = torch::cat(states, 0);
+    new_states_tensor = torch::cat(new_states, 0);
+    actions_tensor = torch::cat(actions, 0);
+    rewards_tensor = torch::cat(rewards, 0);
+    dones_tensor = torch::cat(dones, 0);
+
+
+    torch::Tensor q_values = this->_qNet->forward(states_tensor).second;
+    torch::Tensor next_target_q_values = this->_targetNet->forward(new_states_tensor).second;
+    torch::Tensor next_q_values = this->_qNet->forward(new_states_tensor).second;
+
+    actions_tensor = actions_tensor.to(torch::kInt64);
+
+    torch::Tensor q_value = q_values.gather(1, actions_tensor.unsqueeze(1)).squeeze(1);
+    torch::Tensor maximum = std::get<1>(next_q_values.max(1));
+    torch::Tensor next_q_value = next_target_q_values.gather(1, maximum.unsqueeze(1)).squeeze(1);
+    torch::Tensor expected_q_value = rewards_tensor + this->_gamma*next_q_value*(1-dones_tensor);
+    torch::Tensor loss = torch::mse_loss(q_value, expected_q_value);
+
+    optimizer.zero_grad();
+    loss.backward();
+    optimizer.step();
+
+    std::cout << "Loss: " << loss.item<float>() << std::endl;
+
+    /*
     torch::optim::Adam optimizer(this->_qNet->parameters(), 0.01);
     std::vector<MEMORY_TYPE>batch(this->_batchSize);
     this->_memory.getSample(this->_batchSize, batch);
@@ -113,10 +166,12 @@ void NetworkAgent::optimize() {
     // calculate Q-Values (with policy net) from previous states. Only select the Q-Values that correspond to the actions that where previously taken
 
     // Calculate Q-Values (with target net) from nextState and select max (e.g. q-value of action)
+
+*/
 }
 
 void NetworkAgent::addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove) {
-    MEMORY_TYPE mem = std::make_tuple(this->_gridToInput(state, playerNumber), action, 0, this->_gridToInput(newState, playerNumber), reward, isLastMove);
+    MEMORY_TYPE mem = std::make_tuple(this->_gridToInput(state, playerNumber), action, this->_gridToInput(newState, playerNumber), reward, isLastMove);
     this->_memory.push_back(mem);
 }
 
