@@ -7,18 +7,17 @@
 
 class NetworkImpl : public torch::nn::Module{
     private:
-        torch::nn::Conv2d _conv1, _conv2, _conv3;
-        torch::nn::Linear _linear1, _outputPolicy;
+        torch::nn::Conv2d _conv1{nullptr}, _conv2{nullptr}, _conv3{nullptr};
+        torch::nn::Linear _linear1{nullptr}, _outputPolicy{nullptr};
     public:
-        NetworkImpl():
-            _conv1(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)),
-            _conv2(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
-            _conv3(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)),
-            _linear1(128, 64),
-
-            //_outputValue(64, 3),
-            _outputPolicy(64, 7)
-        {};
+        NetworkImpl()
+        {
+            this->_conv1 = register_module("conv1", torch::nn::Conv2d(torch::nn::Conv2dOptions(1, 64, (4, 4)).stride(1).padding(0).bias(true)));
+            this->_conv2 = register_module("conv2", torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)));
+            this->_conv3 = register_module("conv3", torch::nn::Conv2d(torch::nn::Conv2dOptions(64, 64, (2, 2)).stride(1).padding(0).bias(true)));
+            this->_linear1 = register_module("linear1", torch::nn::Linear(128, 64));
+            this->_outputPolicy = register_module("outputPolicy", torch::nn::Linear(64, 7));
+        };
 
         std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor input) {
             input = torch::relu(_conv1(input));
@@ -28,10 +27,10 @@ class NetworkImpl : public torch::nn::Module{
             input = input.view({input.size(0), -1});
             //std::cout << input << std::endl;
             input = torch::relu(_linear1(input));
-
+            torch::Tensor value = torch::ones({1, 3});
             //torch::Tensor value = _outputValue(input);
             torch::Tensor policy = _outputPolicy(input);
-            return std::make_pair(policy, policy);
+            return std::make_pair(value, policy);
         }
 
         void saveModel(std::string& path) {

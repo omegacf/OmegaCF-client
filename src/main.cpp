@@ -59,8 +59,8 @@ int main(int argc, char *argv[]) {
 
 	Network net;
 	NetworkAgent netAgent(net);
-	netAgent.test();
-	return 0;
+	// netAgent.test();
+	// return 0;
 	netAgent.load();
 
 	Game game = GameFactory::create(7, 6, 2);
