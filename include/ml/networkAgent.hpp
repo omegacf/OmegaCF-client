@@ -39,8 +39,8 @@ class NetworkAgent {
 
         float const _gamma = 0.6;
 
-        int const _batchSize = 10;
-        int const _memorySize = 1000;
+        int const _batchSize = 100;
+        int const _memorySize = 10000;
 
         ReplayMemory<MEMORY_TYPE> _memory;
     

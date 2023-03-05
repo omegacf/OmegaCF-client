@@ -98,17 +98,14 @@ void NetworkAgent::optimize() {
             float tMax = getMaxFromArray<float>(t.data_ptr<float>(), t.numel());
             t[0][std::get<1>(mem)] = std::get<4>(mem) + this->_gamma * tMax;
 
-            torch::Tensor loss = torch::smooth_l1_loss(target, t.clone());
+            torch::Tensor loss = torch::smooth_l1_loss(target, t);
             
             optimizer.zero_grad();
             loss.backward();
-            /*
             for (auto& param : this->_qNet->parameters()) {
                 param.grad().data().clamp(-1, 1);
             }
-            */
             optimizer.step();
-            std::cout << "Loss: " << loss.item<float>() << std::endl;
         }
     }
     
@@ -158,9 +155,10 @@ void NetworkAgent::test() {
         std::cout << "Loss: " << loss.item<float>() << std::endl;
         
     }
-        for (auto& param : this->_qNet->named_parameters()) {
-            
-        }
+    this->_qNet->eval();
+    for (auto& param : this->_qNet->named_parameters()) {
+        std::cout << param->name() << std::endl;
+    }
 
     // Save the model's weights to a file
     std::ofstream output_file("qNet.pt", std::ios::binary);
