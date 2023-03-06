@@ -1,7 +1,33 @@
 #include "../../include/ml/trainer.hpp"
 
-void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator* opponent) {
+Trainer::Trainer(MoveCalculator mc, NetworkAgent& networkAgent) {
+    this->_networkAgent = &networkAgent;
+    this->_game = GameFactory::create(7, 6, 2);
+    int opponentNumber = (this->_playerNumber % 2) + 1;
+
+    switch (mc)
+    {
+        case MoveCalculator::MachineLearning:
+            this->_bmc = new QLearningMoveCalculator(this->_game.getPlayer(opponentNumber));
+            break;
+        case MoveCalculator::MinMax:
+            this->_bmc = new BestMoveCalculator(&this->_game, this->_game.getPlayer(opponentNumber), 6);
+            break;
+        case MoveCalculator::Random:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(opponentNumber));
+            break;
+        default:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(opponentNumber));
+            break;
+    }
+}
+
+
+void Trainer::train(int amountGames = 1000) {
+    this->_networkAgent->load();
     this->_networkAgent->setMode(NetworkMode::Training);
+
+    this->_agent = new QLearningAgent(this->_game.getPlayer(this->_playerNumber), this->_networkAgent);
     Debug::printLine("Start training...");
 
     int playerOneWinnings = 0;
@@ -9,27 +35,26 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
     
     
     for(int i = 0; i < amountGames; ++i) {
-        Game game = GameFactory::create(7, 6, 2);
         int playerTurn = rand() % 2 + 1;
         bool gameIsRunning = true;
         while (gameIsRunning) {
-            Player player = game.getPlayer(playerTurn);
+            Player player = this->_game.getPlayer(playerTurn);
             int move = -1;
-            Grid state(game.CurrentMap);
+            Grid state(this->_game.CurrentMap);
             int reward = 0;
             if (playerTurn == 1) {
                 // qLearning
-                move = qAgent.chooseAction(game.CurrentMap).Move;
-                Game::setStone(player, move, game.CurrentMap);
+                move = this->_agent->chooseAction(this->_game.CurrentMap).Move;
+                Game::setStone(player, move, this->_game.CurrentMap);
             } else {
                 // Opponent
-                move = opponent->getBestMove(game.CurrentMap).Move;
-                game.setStone(player, move, game.CurrentMap);
+                move = this->_bmc->getBestMove(this->_game.CurrentMap).Move;
+                this->_game.setStone(player, move, this->_game.CurrentMap);
             }
-            Grid newState(game.CurrentMap);
+            Grid newState(this->_game.CurrentMap);
 
             // check if game is over
-            if(Game::checkLine(4, game.CurrentMap, player)) {
+            if(Game::checkLine(4, this->_game.CurrentMap, player)) {
                 if(Debug::getFlag()) {
                     std::cout << "Player " << (int)player.Id << " has won" << std::endl;
                 }
@@ -44,7 +69,7 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
                 gameIsRunning = false;
             } else {
                 // check for draw
-                if (Game::getPossibleMoves(player, game.CurrentMap).size() == 0) {
+                if (Game::getPossibleMoves(player, this->_game.CurrentMap).size() == 0) {
                     // draw
                     reward = 0;
                     gameIsRunning = false;
@@ -57,7 +82,7 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
             
             playerTurn = (playerTurn % 2) + 1;
             if(Debug::getFlag()) {
-                std::cout << game.CurrentMap << std::endl;
+                std::cout << this->_game.CurrentMap << std::endl;
             }
         }
         this->_networkAgent->optimize();
@@ -66,4 +91,10 @@ void Trainer::train(int amountGames, QLearningAgent& qAgent, IBestMoveCalculator
         std::cout << "Player 1 winnings: " << playerOneWinnings << std::endl;
         std::cout << "Player 2 winnings: " << playerTwoWinnings << std::endl;
     } 
+    this->_networkAgent->save();
+}
+
+Trainer::~Trainer() {
+    delete this->_agent;
+    delete this->_bmc;
 }

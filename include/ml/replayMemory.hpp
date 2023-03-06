@@ -49,6 +49,21 @@ class ReplayMemory {
             return true;
         }
 
+        ReplayMemory& operator=(const ReplayMemory& other) {
+            if (this != &other) {
+                // Freigabe des alten Speichers
+                delete[] this->_buffer;
+                // Initialisierung von Werten
+                *const_cast<int*> (&this->_capacity)= other._capacity;
+                this->_buffer = new T[_capacity];
+                this->_pos = other._pos;
+                this->_size = other._size;
+                // Kopieren von Werten
+                std::copy(other._buffer, other._buffer + _capacity, this->_buffer);
+            }
+            return *this;
+        }
+
         ~ReplayMemory() {
             delete[] this->_buffer;
         }

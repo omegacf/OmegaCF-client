@@ -6,7 +6,9 @@
 #include "factory/GameFactory.hpp"
 #include "game/BestMoveCalculator.hpp"
 #include "game/RandomMoveCalculator.hpp"
+#include "game/QLearningMoveCalculator.hpp"
 #include <limits>
+#include "util/enums.hpp"
 
 class GameHandler{
     private:
@@ -20,7 +22,7 @@ class GameHandler{
         void handleMove(ServerNetworkMessage sm);
         bool handleMessage(ServerNetworkMessage sm);
         void handleEndGame(ServerNetworkMessage sm);
-        void run();
+        void run(MoveCalculator mc);
         ~GameHandler();
 };
 #endif

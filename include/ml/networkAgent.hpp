@@ -17,17 +17,12 @@
 #include "replayMemory.hpp"
 #include "network.hpp"
 #include "../util/utils.hpp"
+#include "../util/enums.hpp"
 
 struct NetworkOutput{
     std::array<float, 3> val; // loss, draw, win
     std::array<float, 7> action;
 };
-
-typedef enum NetworkMode {
-    Training = 0,
-    Production = 1
-}
-NetworkMode;
 
 class NetworkAgent {
     private:
@@ -39,8 +34,8 @@ class NetworkAgent {
 
         float const _gamma = 0.6;
 
-        int const _batchSize = 10;
-        int const _memorySize = 1000;
+        int _batchSize = 10;
+        int _memorySize = 100000;
 
         ReplayMemory<MEMORY_TYPE> _memory;
     
@@ -49,8 +44,13 @@ class NetworkAgent {
         torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
-        NetworkAgent(Network model): _qNet(model), _targetNet(model), _memory(ReplayMemory<MEMORY_TYPE>(this->_memorySize)) {
-            this->_targetNet->eval();
+        NetworkAgent(Network model, int batchSize = 10, int memorySize = 100000): 
+            _qNet(model), 
+            _targetNet(model),
+            _batchSize(batchSize),
+            _memorySize(memorySize),
+            _memory(ReplayMemory<MEMORY_TYPE>(memorySize)) {
+                this->_targetNet->eval();
         };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         void optimize(); 
@@ -64,6 +64,17 @@ class NetworkAgent {
                 this->_qNet->eval();
             }
         }
+
+        void inline setBatchSize(int batchSize) {
+            this->_batchSize = batchSize;
+        }
+
+        void inline setMemorySize(int memSize) {
+            this->_memorySize = memSize;
+            // reset replay memory
+            this->_memory = ReplayMemory<MEMORY_TYPE>(this->_memorySize);
+        }
+
 
         void test();
 };

@@ -1,12 +1,12 @@
 #include "../../include/ml/qLearningAgent.hpp"
 
 PossibleMove QLearningAgent::chooseAction(Grid& grid) {
-    std::vector<PossibleMove> possibleMoves = Game::getPossibleMoves(*this->_player, grid);
+    std::vector<PossibleMove> possibleMoves = Game::getPossibleMoves(this->_player, grid);
 
     if (static_cast<double>(rand()) / RAND_MAX <= this->_expRate) {
         return possibleMoves.at(rand() % possibleMoves.size());
     } else {
-        NetworkOutput output = this->_networkAgent->evalPosition(grid, this->_player->Id);
+        NetworkOutput output = this->_networkAgent->evalPosition(grid, this->_player.Id);
         // get max action
         int action = std::max_element(output.action.begin(), output.action.end()) - output.action.begin();
         

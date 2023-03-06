@@ -1,5 +1,6 @@
 #include "../include/GameHandler.hpp"
 #include "../include/util/Debug.hpp"
+#include "../include/util/enums.hpp"
 #include <iostream>
 #include <string>
 #include <exception>
@@ -15,9 +16,14 @@
 #include "../include/ml/trainer.hpp"
 
 static void printHelp(){
-	std::cout << "-i --ip\t IP-Adress (default 127.0.0.1)" << std::endl;
+	std::cout << "-i --ip\t IP-Address (default 127.0.0.1)" << std::endl;
 	std::cout << "-p --port\t Port (default 7777)" << std::endl;
 	std::cout << "-q --quiet\t Disable all output" << std::endl; 
+	std::cout << "-b --batchSize\t Define size of batch" << std::endl;
+	std::cout << "-r --replayMemorySize\t Define size of replay memory" << std::endl;
+	std::cout << "-m --mode\t Application Mode: training, gaming" << std::endl;
+	std::cout << "-pl --player\t Player: minmax, random, neuronal" << std::endl;
+	std::cout << "-t --trainingSize\t Define size of training loops" << std::endl;
 	std::cout << "-h --help\t print help" << std::endl;
 }
 
@@ -25,11 +31,18 @@ int main(int argc, char *argv[]) {
 	// set seed for all upcoming random decisions
 	srand(time(NULL));
 
+	// set default values
 	Debug::setFlag(true);
 
 	std::string ip = "127.0.0.1";
-	// unsigned short port = 7777;
-	unsigned short port = 100;
+	unsigned short port = 7777;
+
+	int batchSize = 100;
+	int replayMemorySize = 10000;
+	int amountTraining = 1000;
+
+	MoveCalculator moveCalculator = MoveCalculator::Random;
+	ApplicationMode mode = ApplicationMode::Gaming; 
 
 	if(argc > 1){
 		for(int i = 1; i < argc; ++i) {
@@ -54,56 +67,68 @@ int main(int argc, char *argv[]) {
 			else if((arg == "-q") || (arg == "--quiet")){
 				Debug::setFlag(false);			
 			}
+			else if((arg == "-b") || (arg == "--batchSize")){
+				if (i + 1 < argc) {
+					std::string s = argv[i+1];
+					batchSize = std::stoi(s, nullptr);
+				}		
+			}
+			else if((arg == "-r") || (arg == "--replayMemorySize")){
+				if (i + 1 < argc) {
+					std::string s = argv[i+1];
+					replayMemorySize = std::stoi(s, nullptr);
+				}		
+			}
+			else if((arg == "-t") || (arg == "--trainingSize")){
+				if (i + 1 < argc) {
+					std::string s = argv[i+1];
+					amountTraining = std::stoi(s, nullptr);
+				}		
+			}
+			else if((arg == "-m") || (arg == "--mode")){
+				if (i + 1 < argc) {
+					std::string s = argv[i+1];
+					if (s == "training") {
+						mode = ApplicationMode::Training;
+					} else if (s == "gaming") {
+						mode = ApplicationMode::Gaming;
+					}	
+				}
+			}
+			else if((arg == "-pl") || (arg == "--player")){
+				if (i + 1 < argc) {
+					std::string s = argv[i+1];
+					if (s == "neuronal") {
+						moveCalculator = MoveCalculator::MachineLearning;
+					} else if (s == "minmax") {
+						moveCalculator = MoveCalculator::MinMax;
+					} else if (s == "random") {
+						moveCalculator = MoveCalculator::Random;
+					}
+				}
+			}
 		}
 	}
 
-	Network net;
-	NetworkAgent netAgent(net);
-	// netAgent.test();
-	// return 0;
-	netAgent.load();
+	if (mode == ApplicationMode::Training) {
+		Network net;
+		NetworkAgent netAgent(net, batchSize, replayMemorySize);
+		
+		Trainer trainer(moveCalculator, netAgent);
+		trainer.train(amountTraining);
 
-	Game game = GameFactory::create(7, 6, 2);
-
-	Player player = game.getPlayer(1);
-	QLearningAgent agent(&player, &netAgent);
-
-	IBestMoveCalculator* bmc = new BestMoveCalculator(&game, game.getPlayer(2), 5);
-	IBestMoveCalculator* rmc = new RandomMoveCalculator(game.getPlayer(2));
-	Trainer trainer(&netAgent);
-	trainer.train(port, agent, bmc);
-
-	netAgent.save();
-
-	delete bmc;
-
-
-	//NetworkOutput output = netAgent.evalPosition(game.CurrentMap, 1);
-
-	// netAgent.load();
-/*
-	ReplayMemory<std::tuple<int, int, int>> rm(2);
-	std::tuple<int, int, int> t1 = std::make_tuple(3, 4, 5);
-	std::tuple<int, int, int> t2 = std::make_tuple(6, 7, 8);
-	rm.push_back(t1);
-	rm.push_back(t2);
-	std::vector<std::tuple<int, int, int>> v(1);
-	if (!rm.getSample(1, v))
-		std::cout << "getSample error" << std::endl;
-	std::cout << get<0>(v.at(0)) << std::endl;
-*/
-
-	return 0;
-	try {
-		GameHandler *gameHandler = new GameHandler(ip, port);
-		gameHandler->run();
-	}catch(std::exception &err){
-		std::cout << err.what() << std::endl;
-	}catch(const char* c){
-		std::cout << "Error: " << c << std::endl;
-	}
-	catch(...){
-		std::cout << "Unknown error";
+	} else if (mode == ApplicationMode::Gaming) {
+		try {
+			GameHandler *gameHandler = new GameHandler(ip, port);
+			gameHandler->run(moveCalculator);
+		}catch(std::exception &err){
+			std::cout << err.what() << std::endl;
+		}catch(const char* c){
+			std::cout << "Error: " << c << std::endl;
+		}
+		catch(...){
+			std::cout << "Unknown error";
+		}
 	}
 	
 	return 0; 

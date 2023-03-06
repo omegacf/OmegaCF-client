@@ -11,7 +11,7 @@ GameHandler::GameHandler(std::string host, unsigned short port){
     
 }
 
-void GameHandler::run(){
+void GameHandler::run(MoveCalculator mc){
     Debug::printLine("Run AI");
     // receive playerNumber
     ServerNetworkMessage configurationMessage = DataHandlingService::getInstance().receiveMessage();
@@ -34,8 +34,21 @@ void GameHandler::run(){
     // width height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
-    // this->_bmc = new BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber), 6);
-    this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+    switch (mc)
+    {
+        case MoveCalculator::MachineLearning:
+            this->_bmc = new QLearningMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+        case MoveCalculator::MinMax:
+            this->_bmc = new BestMoveCalculator(&this->_game, this->_game.getPlayer(this->_playerNumber), 6);
+            break;
+        case MoveCalculator::Random:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+        default:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+    }
 
     bool endOfGame = false;
     while(!endOfGame) {
