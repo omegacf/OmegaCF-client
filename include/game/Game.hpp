@@ -19,6 +19,7 @@ class Game{
         Game(){};
 
         Player getPlayer(int8_t playerNumber);
+        void reset();
 
         static void setStone(Player player, int x, Grid& grid);
         static std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);

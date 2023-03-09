@@ -1,5 +1,10 @@
 #include "../../include/game/Game.hpp"
 
+void Game::reset() {
+    std::vector<std::vector<uint8_t>> mapArray(this->CurrentMap.SizeY, std::vector<uint8_t>(this->CurrentMap.SizeX, 0));
+    this->CurrentMap.MapArray = mapArray;
+}
+
 void Game::setStone(Player player, int x, Grid& grid){
     int y = 0;
     for(int i = 0; i < grid.SizeY; i++){

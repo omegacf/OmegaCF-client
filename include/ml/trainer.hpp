@@ -9,6 +9,7 @@
 #include "../factory/GameFactory.hpp"
 #include "../util/Debug.hpp"
 #include "../util/enums.hpp"
+#include "network.hpp"
 
 #include "../game/BestMoveCalculator.hpp"
 #include "../game/RandomMoveCalculator.hpp"

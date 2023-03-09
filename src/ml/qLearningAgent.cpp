@@ -7,25 +7,30 @@ PossibleMove QLearningAgent::chooseAction(Grid& grid) {
         return possibleMoves.at(rand() % possibleMoves.size());
     } else {
         NetworkOutput output = this->_networkAgent->evalPosition(grid, this->_player.Id);
+        // check if action is a possible move
+        if (possibleMoves.size() < grid.SizeX) {
+            this->removeInvalidMoves(possibleMoves, output.action);
+        }
         // get max action
         int action = std::max_element(output.action.begin(), output.action.end()) - output.action.begin();
         
-        // check if action is a possible move
-        bool isValid = false;
-        PossibleMove move;
         for(PossibleMove& pm : possibleMoves) {
             if (pm.Move == action) {
-                move = pm;
-                isValid = true;
-                break;
+                return pm;
             }
         }
+    }
+}
 
-        // if move is valid, return it. If not take a random one (and hope for the best)
-        if (isValid) {
-            return move;
-        } else {
-            return possibleMoves.at(rand() % possibleMoves.size());
+void QLearningAgent::removeInvalidMoves(std::vector<PossibleMove>& possibleMoves, std::array<float, 7>& qValues) {
+    std::array<bool, 7> mask = {0, 0, 0, 0, 0, 0, 0};
+
+    for(PossibleMove& pm : possibleMoves) {
+        mask[pm.Move] = 1;
+    }
+    for(uint8_t i = 0; i < 7; ++i) {
+        if(!mask[i]){
+            qValues[i] = 0;
         }
     }
 }

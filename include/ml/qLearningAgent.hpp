@@ -24,6 +24,7 @@ class QLearningAgent {
         NetworkAgent* _networkAgent;
 
         void updateQ(std::string state, uint8_t action, std::string newState, double reward);
+        void removeInvalidMoves(std::vector<PossibleMove>& possibleMoves, std::array<float, 7>& qValues);
 
     public:
         QLearningAgent(Player player, NetworkAgent* nwAgent, float expRate=0.3, float alpha = 0.01, float gamma = 0.9) 

@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 	std::string ip = "127.0.0.1";
 	unsigned short port = 7777;
 
-	int batchSize = 100;
+	int batchSize = 64;
 	int replayMemorySize = 10000;
 	int amountTraining = 1000;
 
