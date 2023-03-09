@@ -11,7 +11,7 @@ Trainer::Trainer(MoveCalculator mc, NetworkAgent& networkAgent) {
             this->_bmc = new QLearningMoveCalculator(this->_game.getPlayer(opponentNumber));
             break;
         case MoveCalculator::MinMax:
-            this->_bmc = new BestMoveCalculator(&this->_game, this->_game.getPlayer(opponentNumber), 6);
+            this->_bmc = new BestMoveCalculator(&this->_game, this->_game.getPlayer(opponentNumber), 4);
             break;
         case MoveCalculator::Random:
             this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(opponentNumber));
@@ -37,6 +37,7 @@ void Trainer::train(int amountGames = 1000) {
     for(int i = 0; i < amountGames; ++i) {
         int playerTurn = rand() % 2 + 1;
         bool gameIsRunning = true;
+        this->_game.reset();
         while (gameIsRunning) {
             Player player = this->_game.getPlayer(playerTurn);
             int move = -1;
@@ -52,7 +53,6 @@ void Trainer::train(int amountGames = 1000) {
                 this->_game.setStone(player, move, this->_game.CurrentMap);
             }
             Grid newState(this->_game.CurrentMap);
-
             // check if game is over
             if(Game::checkLine(4, this->_game.CurrentMap, player)) {
                 if(Debug::getFlag()) {
@@ -60,10 +60,10 @@ void Trainer::train(int amountGames = 1000) {
                 }
                 // player has won
                 if (playerTurn == 1) {
-                    reward = 1;
+                    reward = 100;
                     playerOneWinnings++;
                 } else {
-                    reward = -1;
+                    reward = -100;
                     playerTwoWinnings++;
                 }
                 gameIsRunning = false;
@@ -76,9 +76,9 @@ void Trainer::train(int amountGames = 1000) {
                     Debug::printLine("Draw");
                 }
             }
-            if (playerTurn == 1) {
-                this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
-            }
+            
+            this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
+            
             
             playerTurn = (playerTurn % 2) + 1;
             if(Debug::getFlag()) {
