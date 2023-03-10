@@ -77,7 +77,8 @@ void Trainer::train(int amountGames = 1000) {
                 }
             }
             
-            this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
+            if (playerTurn == 1)
+                this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
             
             
             playerTurn = (playerTurn % 2) + 1;
