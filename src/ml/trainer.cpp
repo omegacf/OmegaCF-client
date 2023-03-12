@@ -4,6 +4,7 @@ Trainer::Trainer(MoveCalculator mc, NetworkAgent& networkAgent) {
     this->_networkAgent = &networkAgent;
     this->_game = GameFactory::create(7, 6, 2);
     int opponentNumber = (this->_playerNumber % 2) + 1;
+    this->_agent = new QLearningAgent(this->_game.getPlayer(this->_playerNumber), this->_networkAgent);
 
     switch (mc)
     {
@@ -27,7 +28,6 @@ void Trainer::train(int amountGames = 1000) {
     this->_networkAgent->load();
     this->_networkAgent->setMode(NetworkMode::Training);
 
-    this->_agent = new QLearningAgent(this->_game.getPlayer(this->_playerNumber), this->_networkAgent);
     Debug::printLine("Start training...");
 
     int playerOneWinnings = 0;
@@ -74,6 +74,20 @@ void Trainer::train(int amountGames = 1000) {
                     reward = 0;
                     gameIsRunning = false;
                     Debug::printLine("Draw");
+                } else {
+                    // check if a critical error has been made
+                    if (playerTurn == 1) {
+                        Player opponent = this->_game.getPlayer((playerTurn % 2) + 1);
+                        bool critical = false;
+                        std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(opponent, this->_game.CurrentMap);
+                        for(PossibleMove& move : possibleMoves) {
+                            critical = Game::checkLine(4, move.AfterGrid, opponent);
+                            if (critical)
+                                break;
+                        }
+                        if (critical)
+                            reward = -100;
+                    }
                 }
             }
             
