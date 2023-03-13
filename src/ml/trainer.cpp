@@ -28,6 +28,8 @@ void Trainer::train(int amountGames = 1000) {
     this->_networkAgent->load();
     this->_networkAgent->setMode(NetworkMode::Training);
 
+    int maxMoves = this->_game.CurrentMap.SizeX * this->_game.CurrentMap.SizeY;
+
     Debug::printLine("Start training...");
 
     int playerOneWinnings = 0;
@@ -35,15 +37,21 @@ void Trainer::train(int amountGames = 1000) {
     
     
     for(int i = 0; i < amountGames; ++i) {
+
+        int rewardInTerminalState = 0;
+        std::vector<int> moves = std::vector<int>(maxMoves);
+        std::vector<Grid> currentMaps = std::vector<Grid>(maxMoves);
+        std::vector<Grid> newMaps = std::vector<Grid>(maxMoves);
+
         int playerTurn = rand() % 2 + 1;
         bool gameIsRunning = true;
         this->_game.reset();
+        int totalAgentMoves = 0;
         while (gameIsRunning) {
             Player player = this->_game.getPlayer(playerTurn);
             int move = -1;
             Grid state(this->_game.CurrentMap);
-            int reward = 0;
-            if (playerTurn == 1) {
+            if (playerTurn == this->_playerNumber) {
                 // qLearning
                 move = this->_agent->chooseAction(this->_game.CurrentMap).Move;
                 Game::setStone(player, move, this->_game.CurrentMap);
@@ -52,6 +60,9 @@ void Trainer::train(int amountGames = 1000) {
                 move = this->_bmc->getBestMove(this->_game.CurrentMap).Move;
                 this->_game.setStone(player, move, this->_game.CurrentMap);
             }
+            if(Debug::getFlag()) {
+                std::cout << this->_game.CurrentMap << std::endl;
+            }
             Grid newState(this->_game.CurrentMap);
             // check if game is over
             if(Game::checkLine(4, this->_game.CurrentMap, player)) {
@@ -59,11 +70,11 @@ void Trainer::train(int amountGames = 1000) {
                     std::cout << "Player " << (int)player.Id << " has won" << std::endl;
                 }
                 // player has won
-                if (playerTurn == 1) {
-                    reward = 100;
+                if (playerTurn == this->_playerNumber) {
+                    rewardInTerminalState = 100;
                     playerOneWinnings++;
                 } else {
-                    reward = -100;
+                    rewardInTerminalState = -100;
                     playerTwoWinnings++;
                 }
                 gameIsRunning = false;
@@ -71,35 +82,41 @@ void Trainer::train(int amountGames = 1000) {
                 // check for draw
                 if (Game::getPossibleMoves(player, this->_game.CurrentMap).size() == 0) {
                     // draw
-                    reward = 0;
+                    rewardInTerminalState = 0;
                     gameIsRunning = false;
                     Debug::printLine("Draw");
-                } else {
-                    // check if a critical error has been made
-                    if (playerTurn == 1) {
-                        Player opponent = this->_game.getPlayer((playerTurn % 2) + 1);
-                        bool critical = false;
-                        std::vector<PossibleMove> possibleMoves = this->_game.getPossibleMoves(opponent, this->_game.CurrentMap);
-                        for(PossibleMove& move : possibleMoves) {
-                            critical = Game::checkLine(4, move.AfterGrid, opponent);
-                            if (critical)
-                                break;
-                        }
-                        if (critical)
-                            reward = -100;
-                    }
                 }
             }
             
-            if (playerTurn == 1)
-                this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
+            if (playerTurn == this->_playerNumber){
+                currentMaps.at(totalAgentMoves) = state;
+                moves.at(totalAgentMoves) = move;
+                newMaps.at(totalAgentMoves) = newState;
+                totalAgentMoves++;
+            }
+
+            // this->_networkAgent->addMemory(1, state, move, newState, reward, !gameIsRunning);
             
             
             playerTurn = (playerTurn % 2) + 1;
-            if(Debug::getFlag()) {
-                std::cout << this->_game.CurrentMap << std::endl;
-            }
         }
+
+        // reward backfill
+        int lastReward = 0;
+        for (int i = (totalAgentMoves-1); i >= 0; --i) {
+            int reward = 0;
+            bool isFinal = false;
+            if (i == (totalAgentMoves-1)){
+                reward = rewardInTerminalState;
+                lastReward = reward;
+                isFinal = true;
+            } else {
+                reward = 0.3 * lastReward;
+                lastReward = reward;
+            }
+            this->_networkAgent->addMemory(this->_playerNumber, currentMaps.at(i), moves.at(i), newMaps.at(i), reward, isFinal);
+        }
+
         this->_networkAgent->optimize();
     }
     if(true) {
