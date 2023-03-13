@@ -71,10 +71,10 @@ void Trainer::train(int amountGames = 1000) {
                 }
                 // player has won
                 if (playerTurn == this->_playerNumber) {
-                    rewardInTerminalState = 100;
+                    rewardInTerminalState = 1;
                     playerOneWinnings++;
                 } else {
-                    rewardInTerminalState = -100;
+                    rewardInTerminalState = -1;
                     playerTwoWinnings++;
                 }
                 gameIsRunning = false;
