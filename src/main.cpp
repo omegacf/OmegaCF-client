@@ -28,6 +28,43 @@ static void printHelp(){
 }
 
 int main(int argc, char *argv[]) {
+/*
+	    // define variables and model
+    torch::Tensor inputs = torch::randn({1, 1, 6, 7});
+    torch::Tensor targets = torch::randn({1, 7}).to(torch::kFloat16);
+    std::vector<torch::Tensor> batch = {inputs, targets};
+
+	Network net;
+	NetworkAgent netAgent(net, 10, 100);
+	netAgent.load();
+
+    // what are the variables?
+    std::cout << "Our list of parameters: ";
+    for (const auto& pair : netAgent.getQNet()->named_parameters()) {
+        std::cout << pair.key() << " ";
+    }
+    std::cout << std::endl;
+
+    // do they change after a training step?
+    // let's run a train step and see
+    auto optimizer = torch::optim::Adam(netAgent.getQNet()->parameters(), torch::optim::AdamOptions(0.01));
+    auto loss_fn = torch::nn::CrossEntropyLoss();
+    torch::Tensor loss = loss_fn(netAgent.getQNet()->forward(inputs).second, targets);
+    optimizer.zero_grad();
+    loss.backward();
+    optimizer.step();
+    torch::Tensor new_loss = loss_fn(netAgent.getQNet()->forward(inputs).second, targets);
+    std::cout << "Assert statement passes if parameters are updated: ";
+    if (new_loss.item<float>() != loss.item<float>()) {
+        std::cout << "true" << std::endl;
+		std::cout << new_loss.item<float>() << std::endl;
+		std::cout << loss.item<float>() << std::endl;
+    } else {
+        std::cout << "false" << std::endl;
+    }
+
+    return 0;
+*/
 	// set seed for all upcoming random decisions
 	srand(time(NULL));
 

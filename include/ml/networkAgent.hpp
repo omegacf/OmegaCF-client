@@ -65,6 +65,10 @@ class NetworkAgent {
             }
         }
 
+        Network inline getQNet() {
+            return this->_qNet;
+        }
+
         void inline setBatchSize(int batchSize) {
             this->_batchSize = batchSize;
         }
