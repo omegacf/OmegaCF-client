@@ -29,7 +29,7 @@ class NetworkImpl : public torch::nn::Module{
             input = torch::relu(_linear1(input));
             torch::Tensor value = torch::ones({1, 3});
             //torch::Tensor value = _outputValue(input);
-            torch::Tensor policy = torch::nn::functional::softmax(_outputPolicy(input), torch::nn::functional::SoftmaxFuncOptions(1));
+            torch::Tensor policy = _outputPolicy(input);
             return std::make_pair(value, policy);
         }
 
