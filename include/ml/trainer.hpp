@@ -15,6 +15,10 @@
 #include "../game/RandomMoveCalculator.hpp"
 #include "../game/QLearningMoveCalculator.hpp"
 
+#include "../util/matplotlibcpp.h"
+
+namespace plt = matplotlibcpp;
+
 
 class Trainer {
     private:

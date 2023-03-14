@@ -26,6 +26,7 @@ Trainer::Trainer(MoveCalculator mc, NetworkAgent& networkAgent) {
 
 void Trainer::train(int amountGames = 1000) {
     this->_networkAgent->load();
+    this->_networkAgent->updateTargetNet();
     this->_networkAgent->setMode(NetworkMode::Training);
 
     int maxMoves = this->_game.CurrentMap.SizeX * this->_game.CurrentMap.SizeY;
@@ -34,6 +35,8 @@ void Trainer::train(int amountGames = 1000) {
 
     int playerOneWinnings = 0;
     int playerTwoWinnings = 0;
+
+    std::vector<float> lossVector(amountGames);
     
     
     for(int i = 0; i < amountGames; ++i) {
@@ -117,12 +120,16 @@ void Trainer::train(int amountGames = 1000) {
             this->_networkAgent->addMemory(this->_playerNumber, currentMaps.at(i), moves.at(i), newMaps.at(i), reward, isFinal);
         }
 
-        this->_networkAgent->optimize();
+        lossVector.at(i) = this->_networkAgent->optimize();
     }
     if(true) {
         std::cout << "Player 1 winnings: " << playerOneWinnings << std::endl;
         std::cout << "Player 2 winnings: " << playerTwoWinnings << std::endl;
-    } 
+    }
+    
+    plt::plot(lossVector);
+    plt::show();
+
     this->_networkAgent->save();
 }
 

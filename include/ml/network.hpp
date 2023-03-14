@@ -42,6 +42,24 @@ class NetworkImpl : public torch::nn::Module{
             this->save(output_archive);
             output_archive.save_to(path);
         }
+
+        std::string saveMemory(){
+            std::ostringstream oss;
+            torch::serialize::OutputArchive archive;
+
+            this->save(archive);
+            archive.save_to(oss);
+
+            return oss.str();
+        }
+
+        void loadMemory(const std::string& mem){
+            torch::serialize::InputArchive archive;
+            std::istringstream iss(mem);
+            archive.load_from(iss);
+            this->load(archive);
+        }
+
         ~NetworkImpl(){};
 };
 TORCH_MODULE(Network);

@@ -18,6 +18,7 @@
 #include "network.hpp"
 #include "../util/utils.hpp"
 #include "../util/enums.hpp"
+#include "../util/Debug.hpp"
 
 struct NetworkOutput{
     std::array<float, 3> val; // loss, draw, win
@@ -40,26 +41,27 @@ class NetworkAgent {
         ReplayMemory<MEMORY_TYPE> _memory;
     
         void _saveModel(Network& model, std::string const& name);
-        void _loadModel(Network& model, std::string const& name);
+        bool _loadModel(Network& model, std::string const& name);
         torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
         NetworkAgent(Network model, int batchSize = 10, int memorySize = 100000): 
-            _qNet(model), 
-            _targetNet(model),
+            _qNet(model),
             _batchSize(batchSize),
             _memorySize(memorySize),
             _memory(ReplayMemory<MEMORY_TYPE>(memorySize)) {
                 this->_targetNet->eval();
         };
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
-        void optimize(); 
+        float optimize(); 
         void load();
         void save();
+        void updateTargetNet();
         void addMemory(int playerNumber, Grid& state, int action, Grid& newState, int reward, bool isLastMove);
         void inline setMode(NetworkMode mode) {
             if(mode == NetworkMode::Training) {
                 this->_qNet->train();
+                this->_targetNet->eval();
             } else {
                 this->_qNet->eval();
             }

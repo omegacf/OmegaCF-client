@@ -54,25 +54,34 @@ void NetworkAgent::_saveModel(Network& model, std::string const& name) {
     torch::save(model, fullPathString);
 }
 
-void NetworkAgent::_loadModel(Network& model, std::string const& name) {
+bool NetworkAgent::_loadModel(Network& model, std::string const& name) {
     std::string fullPathString = this->_pathToModel + name + this->_fileExt;
     std::filesystem::path filepath = fullPathString;
-    if (std::filesystem::exists(filepath))
+    if (std::filesystem::exists(filepath)) {
         torch::load(model, fullPathString);
+        return true;
+    }
+    return false;
+}
+
+void NetworkAgent::updateTargetNet() {
+    this->_targetNet->loadMemory(this->_qNet->saveMemory());
 }
 
 void NetworkAgent::load() {
-    this->_loadModel(this->_qNet, this->_qNetName);
-    this->_loadModel(this->_targetNet, this->_qNetName);
+    if (!this->_loadModel(this->_qNet, this->_qNetName)) {
+        // no model was found
+        Debug::printLine("No Model was found");
+    }
 }
 
 void NetworkAgent::save() {
     this->_saveModel(this->_qNet, this->_qNetName);
 }
 
-void NetworkAgent::optimize() {
+float NetworkAgent::optimize() {
     if (this->_memory.size() < this->_batchSize) {
-        return;
+        return 0;
     }
 
     torch::optim::Adam optimizer(this->_qNet->parameters(), 0.01);
@@ -125,6 +134,7 @@ void NetworkAgent::optimize() {
     optimizer.step();
 
     std::cout << "Loss: " << loss.item<float>() << std::endl;
+    return loss.item<float>();
 
     /*
     torch::optim::Adam optimizer(this->_qNet->parameters(), 0.01);
