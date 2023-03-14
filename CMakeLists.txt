@@ -7,10 +7,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
+
+
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 message(WARNING ${SOURCES})
 add_executable(OmegaCF-Client ${SOURCES})
 target_link_libraries(OmegaCF-Client "${TORCH_LIBRARIES}")
+target_link_libraries(OmegaCF-Client python3.10)
+target_include_directories(OmegaCF-Client PRIVATE /usr/include/python3.10)
+
+
 set_property(TARGET OmegaCF-Client PROPERTY CXX_STANDARD 17)
 
 
