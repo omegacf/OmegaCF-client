@@ -65,7 +65,24 @@ bool NetworkAgent::_loadModel(Network& model, std::string const& name) {
 }
 
 void NetworkAgent::updateTargetNet() {
-    this->_targetNet->loadMemory(this->_qNet->saveMemory());
+    torch::autograd::GradMode::set_enabled(false);  // make parameters copying possible
+    torch::OrderedDict<std::string, at::Tensor> new_params = this->_qNet->named_parameters(); // implement this
+    torch::OrderedDict<std::string, at::Tensor> params = this->_targetNet->named_parameters(true /*recurse*/);
+    torch::OrderedDict<std::string, at::Tensor> buffers = this->_targetNet->named_buffers(true /*recurse*/);
+    for (auto& val : new_params) {
+        std::string name = val.key();
+        at::Tensor* t = params.find(name);
+        if (t != nullptr) {
+            t->copy_(val.value());
+        } else {
+            t = buffers.find(name);
+            if (t != nullptr) {
+                t->copy_(val.value());
+            }
+        }
+    }
+    torch::autograd::GradMode::set_enabled(true);  // make parameters copying possible
+    this->_targetNet->eval();
 }
 
 void NetworkAgent::load() {
@@ -127,6 +144,7 @@ float NetworkAgent::optimize() {
     torch::Tensor maximum = std::get<1>(next_q_values.max(1));
     torch::Tensor next_q_value = next_target_q_values.gather(1, maximum.unsqueeze(1)).squeeze(1);
     torch::Tensor expected_q_value = rewards_tensor + this->_gamma*next_q_value*(1-dones_tensor);
+
     torch::Tensor loss = torch::mse_loss(q_value, expected_q_value);
 
     optimizer.zero_grad();

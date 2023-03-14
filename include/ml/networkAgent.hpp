@@ -45,13 +45,13 @@ class NetworkAgent {
         torch::Tensor _gridToInput(Grid& grid, uint8_t playerNumber);
 
     public:
-        NetworkAgent(Network model, int batchSize = 10, int memorySize = 100000): 
-            _qNet(model),
+        NetworkAgent(Network qNet, int batchSize = 10, int memorySize = 100000, Network targetNet = nullptr): 
+            _qNet(qNet),
+            _targetNet(targetNet),
             _batchSize(batchSize),
             _memorySize(memorySize),
-            _memory(ReplayMemory<MEMORY_TYPE>(memorySize)) {
-                this->_targetNet->eval();
-        };
+            _memory(ReplayMemory<MEMORY_TYPE>(memorySize)) {};
+            
         NetworkOutput evalPosition(Grid& grid, uint8_t playerNumber);
         float optimize(); 
         void load();

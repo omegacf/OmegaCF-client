@@ -148,8 +148,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (mode == ApplicationMode::Training) {
-		Network net;
-		NetworkAgent netAgent(net, batchSize, replayMemorySize);
+		Network qNet;
+		Network targetNet;
+		NetworkAgent netAgent(qNet, batchSize, replayMemorySize, targetNet);
 		
 		Trainer trainer(moveCalculator, netAgent);
 		trainer.train(amountTraining);
