@@ -2,7 +2,7 @@
 
 int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent) {
     int score = 0;
-    
+    /*
     if (Game::checkLine(4, grid, player)) {
         score += 100;
     } else if (Game::checkLine(3, grid, player)) {
@@ -14,7 +14,7 @@ int BestMoveCalculator::evaluateBoard(Grid grid, Player player, Player opponent)
     if(Game::checkLine(3, grid, opponent)) {
         score -=4;
     }
-
+*/
     return score;
 }
 
@@ -36,7 +36,7 @@ PossibleMove BestMoveCalculator::minimax(Grid& grid, int depth, int alpha, int b
             pm.Score = this->evaluateBoard(grid, this->_player, this->getOpponent(this->_player));
             return pm;
     }
-
+    /*
     if (Game::checkLine(4, grid, this->_player)) {
         PossibleMove pm;
         pm.Score = this->_max;
@@ -48,6 +48,7 @@ PossibleMove BestMoveCalculator::minimax(Grid& grid, int depth, int alpha, int b
         pm.Score = this->_min;
         return pm;
     }
+    */
 
     if (isMax) {
         std::vector<PossibleMove> possibleMoves = Game::getPossibleMoves(this->_player, grid);

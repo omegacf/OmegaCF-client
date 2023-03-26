@@ -5,8 +5,12 @@
 #include "Player.hpp"
 #include "Field.hpp"
 #include "PossibleMove.hpp"
+#include "../util/enums.hpp"
 #include <vector>
 #include <array>
+#include <tuple>
+#include <utility>
+
 
 class Game{
 
@@ -23,6 +27,6 @@ class Game{
 
         static void setStone(Player player, int x, Grid& grid);
         static std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
-        static bool checkLine(int numberOfStones, Grid& grid, Player player);
+        static std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> checkLine(int numberOfStones, Grid& grid, Player player);
 };
 #endif

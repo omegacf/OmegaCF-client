@@ -15,4 +15,12 @@ typedef enum class MoveCalculator{
     Random = 1,
     MachineLearning = 2
 } MoveCalculator;
+
+
+typedef enum class LineType {
+    Vertical = 0,
+    Horizontal = 1,
+    AscendingDiagonal = 2,
+    DescendingDiagonal = 3
+} LineType;
 #endif

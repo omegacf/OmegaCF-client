@@ -68,7 +68,7 @@ void Trainer::train(int amountGames = 1000) {
             }
             Grid newState(this->_game.CurrentMap);
             // check if game is over
-            if(Game::checkLine(4, this->_game.CurrentMap, player)) {
+            if(Game::checkLine(4, this->_game.CurrentMap, player).size()) {
                 if(Debug::getFlag()) {
                     std::cout << "Player " << (int)player.Id << " has won" << std::endl;
                 }

@@ -7,7 +7,7 @@ void Game::reset() {
 
 void Game::setStone(Player player, int x, Grid& grid){
     int y = 0;
-    for(int i = 0; i < grid.SizeY; i++){
+    for(int i = 0; i < grid.SizeY; ++i){
         if(grid.getStone(x, y) == 0){
             y++;
         }else{
@@ -39,92 +39,100 @@ Player Game::getPlayer(int8_t playerNumber){
     return Player();
 }
 
-bool Game::checkLine(int numberOfStones, Grid& grid, Player player) {
-    int lineSize = 4;
+std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> Game::checkLine(int numberOfStones, Grid& grid, Player player) {
+    std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> result;
     // verticalCheck 
-    for (int y = 0; y < grid.SizeY-3 ; y++ ){
-        for (int x = 0; x < grid.SizeX; x++){
-            bool brk = false;
-            int emptyCounter = 0;
-            for(int s = 0; s < lineSize && !brk; s++) {
-               if(grid.getStone(x, y + s) != player.Id) {
-                   // check if field is free
-                   if(grid.getStone(x, y + s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
-                       emptyCounter++;
-                   } else {
-                       brk = true;
-                   }
-               }
-
+    for (int x = 0; x < grid.SizeX; x++){
+        for (int y = 0; y < grid.SizeY-(numberOfStones-1) ; y++){
+            int amountOfStonesInARow = 0;
+            for(int s = 0; s < (grid.SizeY - y); s++) {
+                if(grid.getStone(x, y + s) == player.Id) {
+                    amountOfStonesInARow++;
+                } else {
+                    break;
+                }
             }
-            if(brk == false) {
-                return true;
-            }          
+
+            if (amountOfStonesInARow == numberOfStones) {
+                result.push_back(
+                    std::make_tuple<LineType, std::pair<int, int>, std::pair<int, int>>(
+                        LineType::Vertical, 
+                        std::make_pair(x, y), 
+                        std::make_pair(x, y + numberOfStones - 1)
+                    )
+                );
+            }    
         }
     }
 
     // horizontalCheck
-    for (int x = 0; x < grid.SizeX-3; x++ ){
-        for (int y = 0; y < grid.SizeY; y++){
-            bool brk = false;
-            int emptyCounter = 0;
-            for(int s = 0; s < lineSize && !brk; s++) {
-               if(grid.getStone(x + s, y) != player.Id) {
-                   // check if field is free
-                   if(grid.getStone(x + s, y) == 0 && emptyCounter < (lineSize-numberOfStones)) {
-                       emptyCounter++;
-                   } else {
-                       brk = true;
-                   }
-               }
-
+    for (int x = 0; x < grid.SizeX-(numberOfStones-1); ++x){
+        for (int y = 0; y < grid.SizeY; ++y){
+            int amountOfStonesInARow = 0;
+            for(int s = 0; s < (grid.SizeX - x); ++s) {
+               if(grid.getStone(x + s, y) == player.Id) {
+                    amountOfStonesInARow++;
+                } else {
+                    break;
+                }
             }
-            if(!brk) {
-                return true;
-            }     
+
+            if (amountOfStonesInARow == numberOfStones) {
+                result.push_back(
+                    std::make_tuple<LineType, std::pair<int, int>, std::pair<int, int>>(
+                        LineType::Horizontal, 
+                        std::make_pair(x, y), 
+                        std::make_pair(x + numberOfStones - 1, y)
+                    )
+                );
+            }    
         }
     }
-    // ascendingDiagonalCheck 
-    for (int x=3; x < grid.SizeX; x++){
-        for (int y=0; y < grid.SizeY-3; y++){
-            bool brk = false;
-            int emptyCounter = 0;
-            for(int s = 0; s < lineSize && !brk; s++) {
-               if(grid.getStone(x - s, y + s) != player.Id) {
-                   // check if field is free
-                   if(grid.getStone(x - s, y + s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
-                       emptyCounter++;
-                   } else {
-                       brk = true;
-                   }
-               }
+    // descendingDiagonalCheck 
+    for (int x=0; x < grid.SizeX-(numberOfStones-1); ++x){
+        for (int y=0; y < grid.SizeY-(numberOfStones-1); ++y){
+            int amountOfStonesInARow = 0;
+            for(int s = 0; s < std::min(grid.SizeX - x, grid.SizeY - y); ++s) {
+               if(grid.getStone(x + s, y + s) == player.Id) {
+                    amountOfStonesInARow++;
+                } else {
+                    break;
+                }
+            }   
 
-            }
-            if(!brk) {
-                return true;
-            }     
+            if (amountOfStonesInARow == numberOfStones) {
+                result.push_back(
+                    std::make_tuple<LineType, std::pair<int, int>, std::pair<int, int>>(
+                        LineType::DescendingDiagonal, 
+                        std::make_pair(x, y), 
+                        std::make_pair(x + (numberOfStones - 1), y + (numberOfStones - 1))
+                    )
+                );
+            }   
         }
     }
-    // descendingDiagonalCheck
-    for (int x=3; x < grid.SizeX; x++){
-        for (int y=3; y < grid.SizeY; y++){
-            bool brk = false;
-            int emptyCounter = 0;
-            for(int s = 0; s < lineSize && !brk; s++) {
-               if(grid.getStone(x - s, y - s) != player.Id) {
-                   // check if field is free
-                   if(grid.getStone(x - s, y - s) == 0 && emptyCounter < (lineSize-numberOfStones)) {
-                       emptyCounter++;
-                   } else {
-                       brk = true;
-                   }
-               }
-
+    // ascendingDiagonalCheck
+    for (int x=0; x < grid.SizeX-(numberOfStones-1); ++x){
+        for (int y=(numberOfStones-1); y < grid.SizeY; ++y){
+            int amountOfStonesInARow = 0;
+            for(int s = 0; s < std::min(grid.SizeX - x, y); ++s) {
+               if(grid.getStone(x + s, y - s) == player.Id) {
+                    amountOfStonesInARow++;
+                } else {
+                    break;
+                }
             }
-            if(!brk) {
-                return true;
-            }     
+
+            if (amountOfStonesInARow == numberOfStones) {
+                result.push_back(
+                    std::make_tuple<LineType, std::pair<int, int>, std::pair<int, int>>(
+                        LineType::AscendingDiagonal, 
+                        std::make_pair(x, y), 
+                        std::make_pair(x + (numberOfStones - 1), y - (numberOfStones - 1))
+                    )
+                );
+            }    
         }
     }
-    return false;
+    return result;
 }

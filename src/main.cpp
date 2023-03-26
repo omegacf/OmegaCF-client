@@ -28,6 +28,67 @@ static void printHelp(){
 }
 
 int main(int argc, char *argv[]) {
+
+	Game game = GameFactory::create(7, 6, 2);
+	// create test board
+	game.setStone(game.getPlayer(1), 0, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 0, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 0, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 0, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 0, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 0, game.CurrentMap);
+
+	game.setStone(game.getPlayer(2), 1, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 1, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 1, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 1, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 1, game.CurrentMap);
+
+	game.setStone(game.getPlayer(2), 2, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 2, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 2, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 2, game.CurrentMap);
+
+	game.setStone(game.getPlayer(1), 3, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 3, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 3, game.CurrentMap);
+
+	game.setStone(game.getPlayer(2), 4, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 4, game.CurrentMap);
+	game.setStone(game.getPlayer(2), 4, game.CurrentMap);
+
+	game.setStone(game.getPlayer(2), 5, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 5, game.CurrentMap);
+
+	game.setStone(game.getPlayer(2), 6, game.CurrentMap);
+	game.setStone(game.getPlayer(1), 6, game.CurrentMap);
+
+
+	std::cout << game.CurrentMap << std::endl;
+
+	std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> result = Game::checkLine(2, game.CurrentMap, game.getPlayer(2));
+	std::cout << "Count: " << result.size() << std::endl;
+
+	for(auto& v : result){
+		LineType type = get<0>(v);
+		switch (type)
+		{
+		case LineType::AscendingDiagonal:
+			std::cout << "AscendingDiagonal: " << get<1>(v).first << " | " << get<1>(v).second << " -> " << get<2>(v).first << " | " << get<2>(v).second << std::endl;
+			break;
+		case LineType::DescendingDiagonal:
+			std::cout << "DescendingDiagonal: " << get<1>(v).first << " | " << get<1>(v).second << " -> " << get<2>(v).first << " | " << get<2>(v).second << std::endl;
+			break;
+		case LineType::Vertical:
+			std::cout << "Vertical: " << get<1>(v).first << " | " << get<1>(v).second << " -> " << get<2>(v).first << " | " << get<2>(v).second << std::endl;
+			break;
+		case LineType::Horizontal:
+			std::cout << "Horizontal: " << get<1>(v).first << " | " << get<1>(v).second << " -> " << get<2>(v).first << " | " << get<2>(v).second << std::endl;
+			break;
+		default:
+			break;
+		}
+	}
 /*
 	    // define variables and model
     torch::Tensor inputs = torch::randn({1, 1, 6, 7});
