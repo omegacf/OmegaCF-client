@@ -11,13 +11,13 @@ GameHandler::GameHandler(std::string host, unsigned short port){
     
 }
 
-void GameHandler::run(){
+void GameHandler::run(MoveCalculator mc){
     Debug::printLine("Run AI");
     // receive playerNumber
     ServerNetworkMessage configurationMessage = DataHandlingService::getInstance().receiveMessage();
     while (configurationMessage.getMessageType() != NetworkMessageType::Configuration) {
         if(configurationMessage.getMessageType() == NetworkMessageType::EndGame) {
-            handeEndGame(configurationMessage);
+            handleEndGame(configurationMessage);
         } else {
             Debug::printLine("Unexpected message type!");
             exit(0);
@@ -31,10 +31,24 @@ void GameHandler::run(){
     Debug::printLine(ss.str());
 
     // init game
-    // widht height amountOfPlayers
+    // width height amountOfPlayers
     this->_game = GameFactory::create(7, 6, 2);
 
-    this->_bmc = BestMoveCalculator(this->_game, this->_game.getPlayer(this->_playerNumber));
+    switch (mc)
+    {
+        case MoveCalculator::MachineLearning:
+            this->_bmc = new QLearningMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+        case MoveCalculator::MinMax:
+            this->_bmc = new BestMoveCalculator(&this->_game, this->_game.getPlayer(this->_playerNumber), 6);
+            break;
+        case MoveCalculator::Random:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+        default:
+            this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            break;
+    }
 
     bool endOfGame = false;
     while(!endOfGame) {
@@ -61,7 +75,7 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
             break;
         case NetworkMessageType::EndGame:
             Debug::printLine("EndGame");
-            handeEndGame(message);
+            handleEndGame(message);
             endOfGame = true;
             break;
         default:
@@ -73,21 +87,21 @@ bool GameHandler::handleMessage(ServerNetworkMessage message){
 }
 
 void GameHandler::handleMoveRequest(ServerNetworkMessage message) {
-    PossibleMove move = this->_bmc.minimax(this->_game.CurrentMap, 6);
+    PossibleMove move = this->_bmc->getBestMove(this->_game.CurrentMap);
     Debug::printLine("Move to send to the server:");
     Debug::printLine(std::to_string(move.Move));
     DataHandlingService::getInstance().sendMessage(ClientNetworkMessage((int8_t)move.Move));
 }
 
 void GameHandler::handleMove(ServerNetworkMessage message) {
-    this->_game.setStone(this->_game.getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
+    Game::setStone(this->_game.getPlayer(message.Move.playerNumber), message.Move.x, this->_game.CurrentMap);
 
     std::stringstream ss;
     ss << this->_game.CurrentMap;
     Debug::printLine(ss.str());
 }
 
-void GameHandler::handeEndGame(ServerNetworkMessage message) {
+void GameHandler::handleEndGame(ServerNetworkMessage message) {
     if(message.EndGame.playerNumber == 0) {
         Debug::printLine("Draw!");
     } else {
@@ -101,4 +115,5 @@ void GameHandler::handeEndGame(ServerNetworkMessage message) {
 }
 
 GameHandler::~GameHandler(){
+    delete this->_bmc;
 }

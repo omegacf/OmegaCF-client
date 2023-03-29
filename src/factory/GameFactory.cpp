@@ -2,7 +2,7 @@
 
 Game GameFactory::create(int sizeX, int sizeY, int playerNumber){
     std::vector<std::vector<uint8_t>> mapArray(sizeY, std::vector<uint8_t>(sizeX, 0));
-    Grid grid(mapArray);
+    Grid grid(mapArray, sizeX, sizeY);
     
     //init players
     std::vector<Player> players;
