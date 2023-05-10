@@ -52,33 +52,37 @@ int BestMoveCalculator::evaluateBoard(Grid& grid, Player player, Player opponent
 int BestMoveCalculator::_countFreeStones(LineType type, std::pair<int, int>& begin, std::pair<int, int>& end, Grid& grid, Player& player, int numberOfStones) {
     int result = 0;
     // make sure that begin is left and end is right
-    std::pair<int, int> cpyBegin = begin;
-    begin = std::min(begin.first, end.first)?begin:end;
-    end = std::max(cpyBegin.first, end.first)?end:cpyBegin;
+    std::pair<int, int> tBegin, tEnd;
+    tBegin = std::min(begin.first, end.first) == begin.first?begin:end;
+    tEnd = std::max(begin.first, end.first) == end.first?end:begin;
     switch (type)
     {
         case LineType::Horizontal:
-            if(begin.first > 0 && grid.getStone(begin.first-1, begin.second) != 0)
+            if(tBegin.first > 0 && grid.getStone(tBegin.first-1, tBegin.second) == 0)
                 ++result;
-            if(end.first < grid.SizeX-1 && grid.getStone(end.first+1, end.second) != 0)
+            if(tEnd.first < grid.SizeX-1 && grid.getStone(tEnd.first+1, tEnd.second) == 0)
                 ++result;
             break;
         case LineType::Vertical:
-            if(begin.second > 0 && grid.getStone(begin.first, begin.second-1) != 0)
+            // make sure that begin is bottom and end is up
+            tBegin = std::min(begin.second, end.second) == begin.second?begin:end;
+            tEnd = std::max(begin.second, end.second) == end.second?end:begin;
+
+            if(begin.second > 0 && grid.getStone(begin.first, begin.second-1) == 0)
                 ++result;
-            if(end.second < grid.SizeY-1 && grid.getStone(end.first, end.second+1) != 0)
+            if(tEnd.second < grid.SizeY-1 && grid.getStone(tEnd.first, tEnd.second+1) == 0)
                 ++result;
             break;     
         case LineType::AscendingDiagonal:
-            if((begin.first>0 && begin.second<grid.SizeY-1) && grid.getStone(begin.first-1, begin.second+1) != 0)
+            if((tBegin.first>0 && tBegin.second<grid.SizeY-1) && grid.getStone(tBegin.first-1, tBegin.second+1) == 0)
                 ++result;
-            if((end.second>0 && end.first<grid.SizeX-1) && grid.getStone(end.first+1, end.second-1) != 0)
+            if((tEnd.second>0 && tEnd.first<grid.SizeX-1) && grid.getStone(tEnd.first+1, tEnd.second-1) == 0)
                 ++result;
             break;    
         case LineType::DescendingDiagonal:
-            if((begin.first>0 && begin.second>0) && grid.getStone(begin.first-1, begin.second-1) != 0)
+            if((tBegin.first>0 && tBegin.second>0) && grid.getStone(tBegin.first-1, tBegin.second-1) == 0)
                 ++result;
-            if((end.first<grid.SizeX-1 && end.second<grid.SizeY-1) && grid.getStone(end.first+1, end.second+1) != 0)
+            if((tEnd.first<grid.SizeX-1 && tEnd.second<grid.SizeY-1) && grid.getStone(tEnd.first+1, tEnd.second+1) == 0)
                 ++result;
             break;       
         default:
@@ -102,7 +106,10 @@ PossibleMove BestMoveCalculator::minimax(Grid& grid, int depth, int alpha, int b
 
     if (depth == 0) {
             PossibleMove pm;
-            pm.Score = this->evaluateBoard(grid, this->_player, this->getOpponent(this->_player));
+            Player* player = &this->_player;
+            if (!isMax)
+                player = &this->getOpponent(this->_player);
+            pm.Score = this->evaluateBoard(grid, this->_player, *player);
             return pm;
     }
     

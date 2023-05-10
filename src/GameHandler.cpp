@@ -99,6 +99,10 @@ void GameHandler::handleMove(ServerNetworkMessage message) {
     std::stringstream ss;
     ss << this->_game.CurrentMap;
     Debug::printLine(ss.str());
+    BestMoveCalculator* bmc = dynamic_cast<BestMoveCalculator*>(this->_bmc);
+    std::stringstream ss2;
+    ss2 << "Points: " << bmc->evaluateBoard(this->_game.CurrentMap, this->_game.getPlayer(this->_playerNumber), this->_game.getPlayer((this->_playerNumber % 2) + 1));
+    Debug::printLine(ss2.str());
 }
 
 void GameHandler::handleEndGame(ServerNetworkMessage message) {
