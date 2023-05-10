@@ -28,7 +28,7 @@ static void printHelp(){
 }
 
 int main(int argc, char *argv[]) {
-
+	/*
 	Game game = GameFactory::create(7, 6, 2);
 	// create test board
 	game.setStone(game.getPlayer(1), 0, game.CurrentMap);
@@ -89,6 +89,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 	}
+	*/
 /*
 	    // define variables and model
     torch::Tensor inputs = torch::randn({1, 1, 6, 7});
