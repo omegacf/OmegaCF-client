@@ -45,6 +45,8 @@ void GameHandler::run(MoveCalculator mc){
         case MoveCalculator::Random:
             this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
             break;
+        case MoveCalculator::MCTS:  
+            this->_bmc = new MCTSMoveCalculator(this->_game.getPlayer(this->_playerNumber));
         default:
             this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
             break;
