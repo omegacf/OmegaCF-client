@@ -8,22 +8,21 @@ MCTSNode* MCTSMoveCalculator::_selection(MCTSNode& node) {
     bool isTerminal = false;
     while (!isTerminal) {
         float maxUCB = std::numeric_limits<float>::min();
-        unsigned int index = 0;
-        std::vector<MCTSNode*> children = nodeToExpand->getChildren();
-        if (!children.size()) {
-            for(MCTSNode* child : children) {
+        std::vector<std::pair<int, MCTSNode*>> children = nodeToExpand->getChildren();
+        if (children.size()) {
+            for(std::pair<int, MCTSNode*>& child : children) {
                 float ucb = 0;
 
                 // prevent division zero
-                if (child->getVisits() == 0) {
+                if (child.second->getVisits() == 0) {
                    ucb = std::numeric_limits<float>::max();
                 } else {
-                   ucb = this->_calcUCB(*child);
+                   ucb = this->_calcUCB(*child.second);
                 }
 
                 if (ucb > maxUCB) {
                     maxUCB = ucb;
-                    nodeToExpand = child;
+                    nodeToExpand = child.second;
                 }
             }
         } else {
@@ -32,50 +31,25 @@ MCTSNode* MCTSMoveCalculator::_selection(MCTSNode& node) {
     }
 
     return nodeToExpand;
-    
-
-    Q.push(&(node));
-    while (Q.size()) {
-        MCTSNode* v = Q.front();
-        Q.pop();
-        // check if v is a leaf node
-        if (!v->getChildren().size()) {
-            // v is leaf node
-            // check if v is terminal (no possible moves) 
-            Player nextPlayer = this->_game->getNextPlayer(v->currentPlayer);
-            Grid nodeGrid = node.getGrid();
-            if (Game::getPossibleMoves(nextPlayer, nodeGrid).size()) {
-                // found possible node for expansion
-                float ucb = this->_calcUCB(*v);
-                if (ucb > maxUCB) {
-                   maxUCB = ucb;
-                   nodeToExpand = v; 
-                }
-            }
-        } else {
-            for(MCTSNode* child : v->getChildren()) {
-                Q.push(child);
-            }
-        }
-    }
-
-    return nodeToExpand;
 }
 
-// just call expansion if node is not a terminal one
 MCTSNode* MCTSMoveCalculator::_expansion(MCTSNode& node) {
     Player nextPlayer = this->_game->getNextPlayer(node.currentPlayer);
     Grid nodeGrid = node.getGrid();
     std::vector<PossibleMove> possibleMoves = Game::getPossibleMoves(nextPlayer, nodeGrid);
 
+    // check if node is a terminal one
+    if (!possibleMoves.size()) {
+        return &node;
+    }
     // no need to check if there are moves
     for(PossibleMove& move : possibleMoves) {
         MCTSNode* newNode = new MCTSNode(move.AfterGrid, &node, 0, 0.0f);
-        node.addChild(newNode);
+        node.addChild(move.Move, newNode);
     }
 
     // select random child
-    return node.getChildren().at(rand() % node.getChildren().size());
+    return node.getChildren().at(rand() % node.getChildren().size()).second;
 }
 
 // just call simulation if node is not a terminal one
@@ -84,24 +58,41 @@ float MCTSMoveCalculator::_simulation(MCTSNode& node) {
     bool gameOver = false;
     float score = 0;
     Grid nodeGrid = node.getGrid();
-    // Player nextPlayer = this->_game->getNextPlayer(node.currentPlayer);
-    std::vector<PossibleMove> moves = Game::getPossibleMoves(nextPlayer, nodeGrid);
+    // same as next player, because there are only two
+    Player prevPlayer = this->_game->getNextPlayer(node.currentPlayer);
+    std::vector<PossibleMove> moves = Game::getPossibleMoves(node.currentPlayer, nodeGrid);
+
+    // check if node is a terminal one
+    if (Game::checkLine(4, nodeGrid, prevPlayer).size()) {
+        if (prevPlayer.Id == this->_player.Id) {
+            return WIN_SCORE;
+        } else {
+            return LOOSE_SCORE;
+        }
+    }
+    if (!moves.size()) {
+        return DRAW_SCORE;
+    }
+
+    Player player = node.currentPlayer;
+    
     while (gameOver) {
-        // check if game is in a terminal state
         // select random move
         PossibleMove randMove = moves.at(rand() % moves.size());
         // check if somebody has won
-        if (Game::checkLine(4, randMove.AfterGrid, nextPlayer).size()) {
+        if (Game::checkLine(4, randMove.AfterGrid, player).size()) {
             gameOver = true;
             // somebody has won
-            if (nextPlayer.Id == this->_player.Id) {
+            if (player.Id == this->_player.Id) {
                 score = WIN_SCORE;
+            } else {
+                score = LOOSE_SCORE;
             }
         }
 
         Grid nodeGrid = randMove.AfterGrid;
-        Player nextPlayer = this->_game->getNextPlayer(node.currentPlayer);
-        std::vector<PossibleMove> moves = Game::getPossibleMoves(nextPlayer, nodeGrid);
+        player = this->_game->getNextPlayer(player);
+        std::vector<PossibleMove> moves = Game::getPossibleMoves(player, nodeGrid);
         if (!moves.size()) {
             // draw
             gameOver = true;
@@ -117,17 +108,49 @@ void MCTSMoveCalculator::_backpropagation(MCTSNode& node, float value){
     do{
         n->updateScore(value);
         n = n->getParent();
-    }while(n->getParent() != nullptr);
+    }while(n != nullptr);
 }
 
 PossibleMove MCTSMoveCalculator::getBestMove(Grid& grid) {
+    Debug::printLine("Run MCTS");
     // create root node
     MCTSNode* root = new MCTSNode(grid, nullptr, 0, 0);
     for(unsigned int i = 0; i<this->iterations; ++i) {
-        // selection
+        std::cout << "Iteration: " << i << std::endl;
 
-        // dont expand node if it was never sampled before
+        Debug::printLine("Selection");
+        // selection
+        MCTSNode* selectedNode = this->_selection(*root);
+
+        // check if node was visited before
+        // if yes, expand it, if not, just carry on with the simulation
+        if (selectedNode->getVisits()) {
+            Debug::printLine("Expansion");
+            // expand it
+            selectedNode = this->_expansion(*selectedNode);
+        }
+
+        Debug::printLine("Simulation");
+        // simulation
+        float score = this->_simulation(*selectedNode);
+
+        Debug::printLine("Backpropagation");
+        // backpropagation
+        this->_backpropagation(*selectedNode, score);
     }
+
+    // select move where node has highest visits
+    int visits = 0;
+    PossibleMove move;
+
+    for(std::pair<int, MCTSNode*> child : root->getChildren()) {
+        if (child.second->getVisits() > visits) {
+            visits = child.second->getVisits();
+            move = PossibleMove(child.first, child.second->getGrid());
+        }
+    }
+    this->_clearTree(*root);
+    return move;
 }
 
 void MCTSMoveCalculator::_clearTree(MCTSNode& root) {
@@ -136,13 +159,13 @@ void MCTSMoveCalculator::_clearTree(MCTSNode& root) {
     while (Q.size()) {
         MCTSNode* node = Q.front();
         Q.pop();
-        std::vector<MCTSNode*> children = node->getChildren();
+        std::vector<std::pair<int, MCTSNode*>> children = node->getChildren();
         if (!children.size()) {
             // leaf node found -> delete it
             delete node;
         } else {
-            for (MCTSNode* child : children) {
-                Q.push(child);
+            for (std::pair<int, MCTSNode*>& child : children) {
+                Q.push(child.second);
             }
         }
     }

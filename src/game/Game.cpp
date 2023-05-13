@@ -150,5 +150,5 @@ Player Game::getNextPlayer(int8_t playerNumber) {
 }
 
 Player Game::getNextPlayer(Player& currentPlayer) {
-    this->getNextPlayer(currentPlayer.Id);
+    return this->getNextPlayer(currentPlayer.Id);
 }

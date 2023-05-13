@@ -46,7 +46,8 @@ void GameHandler::run(MoveCalculator mc){
             this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
             break;
         case MoveCalculator::MCTS:  
-            this->_bmc = new MCTSMoveCalculator(this->_game.getPlayer(this->_playerNumber));
+            this->_bmc = new MCTSMoveCalculator(this->_game.getPlayer(this->_playerNumber), &this->_game);
+            break;
         default:
             this->_bmc = new RandomMoveCalculator(this->_game.getPlayer(this->_playerNumber));
             break;
@@ -101,6 +102,7 @@ void GameHandler::handleMove(ServerNetworkMessage message) {
     std::stringstream ss;
     ss << this->_game.CurrentMap;
     Debug::printLine(ss.str());
+    return;
     BestMoveCalculator* bmc = dynamic_cast<BestMoveCalculator*>(this->_bmc);
     std::stringstream ss2;
     ss2 << "Points: " << bmc->evaluateBoard(this->_game.CurrentMap, this->_game.getPlayer(message.Move.playerNumber), this->_game.getPlayer((message.Move.playerNumber % 2) + 1));
