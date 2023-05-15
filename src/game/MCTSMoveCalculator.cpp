@@ -136,14 +136,14 @@ PossibleMove MCTSMoveCalculator::getBestMove(Grid& grid) {
         this->_backpropagation(*selectedNode, score);
     }
 
-    // select move where node has highest visits
-    int wins = -1000;
+    // select move where node has highest ucb
+    int visits = 0;
     PossibleMove move;
 
     for(std::pair<int, MCTSNode*> child : root->getChildren()) {
-        std::cout << "Move: " << child.first << " | Wins: " << child.second->getScore() << std::endl;
-        if (child.second->getScore() > wins) {
-            wins = child.second->getScore();
+        std::cout << "Move: " << child.first << " | Wins: " << child.second->getScore() << " | Visits: " << child.second->getVisits() << std::endl;
+        if (child.second->getVisits() > visits) {
+            visits = child.second->getVisits();
             move = PossibleMove(child.first, child.second->getGrid());
         }
     }
