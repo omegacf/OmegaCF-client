@@ -10,8 +10,8 @@
 #include <limits>
 #include "../util/Debug.hpp"
 
-#define WIN_SCORE 10
-#define LOOSE_SCORE 0
+#define WIN_SCORE 1
+#define LOOSE_SCORE -1
 #define DRAW_SCORE 0
 
 class MCTSMoveCalculator: public IBestMoveCalculator {
