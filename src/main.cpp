@@ -22,7 +22,7 @@ static void printHelp(){
 	std::cout << "-b --batchSize\t Define size of batch" << std::endl;
 	std::cout << "-r --replayMemorySize\t Define size of replay memory" << std::endl;
 	std::cout << "-m --mode\t Application Mode: training, gaming" << std::endl;
-	std::cout << "-pl --player\t Player: minmax, random, neuronal" << std::endl;
+	std::cout << "-pl --player\t Player: minmax, random, neuronal, mcts" << std::endl;
 	std::cout << "-t --trainingSize\t Define size of training loops" << std::endl;
 	std::cout << "-h --help\t print help" << std::endl;
 }
@@ -203,6 +203,8 @@ int main(int argc, char *argv[]) {
 						moveCalculator = MoveCalculator::MinMax;
 					} else if (s == "random") {
 						moveCalculator = MoveCalculator::Random;
+					} else if (s == "mcts") {
+						moveCalculator = MoveCalculator::MCTS;
 					}
 				}
 			}

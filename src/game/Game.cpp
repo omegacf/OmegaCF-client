@@ -144,3 +144,11 @@ std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> Game
     }
     return result;
 }
+
+Player Game::getNextPlayer(int8_t playerNumber) {
+    return Game::getPlayer((playerNumber % this->Players.size()) + 1);
+}
+
+Player Game::getNextPlayer(Player& currentPlayer) {
+    return this->getNextPlayer(currentPlayer.Id);
+}

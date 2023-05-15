@@ -28,5 +28,7 @@ class Game{
         static void setStone(Player player, int x, Grid& grid);
         static std::vector<PossibleMove> getPossibleMoves(Player& player, Grid& grid);
         static std::vector<std::tuple<LineType, std::pair<int, int>, std::pair<int, int>>> checkLine(int numberOfStones, Grid& grid, Player player);
+        Player getNextPlayer(int8_t playerNumber);
+        Player getNextPlayer(Player& currentPlayer);
 };
 #endif

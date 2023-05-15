@@ -1,6 +1,12 @@
 #include "../../include/game/BestMoveCalculator.hpp"
 
 int BestMoveCalculator::evaluateBoard(Grid& grid, Player player, Player opponent) {
+    //return this->_evaluateBoardForOnePlayer(grid, player, opponent) - this->_evaluateBoardForOnePlayer(grid, opponent, player);
+    return this->_evaluateBoardForOnePlayer(grid, player, opponent);
+}
+
+
+int BestMoveCalculator::_evaluateBoardForOnePlayer(Grid& grid, Player player, Player opponent) {
     int score = 0;
 
     if (Game::checkLine(4, grid, player).size()) {

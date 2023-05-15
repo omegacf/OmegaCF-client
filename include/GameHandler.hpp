@@ -6,6 +6,7 @@
 #include "factory/GameFactory.hpp"
 #include "game/BestMoveCalculator.hpp"
 #include "game/RandomMoveCalculator.hpp"
+#include "game/MCTSMoveCalculator.hpp"
 #include "game/QLearningMoveCalculator.hpp"
 #include <limits>
 #include "util/enums.hpp"

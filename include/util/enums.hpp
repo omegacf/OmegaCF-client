@@ -13,7 +13,8 @@ typedef enum class ApplicationMode{
 typedef enum class MoveCalculator{
     MinMax = 0,
     Random = 1,
-    MachineLearning = 2
+    MachineLearning = 2,
+    MCTS = 3
 } MoveCalculator;
 
 
